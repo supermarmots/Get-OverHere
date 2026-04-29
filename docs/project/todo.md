@@ -95,4 +95,19 @@
 - [x] Keep meeting card status opposite the title.
 - [x] Make meeting creation writes atomic with Firestore batch.
 - [x] Add meeting creation error messages for missing auth/config and permission errors.
+- [x] Plan recommended dates in `docs/product/meeting-recommendations.md`.
+- [x] Add participant availability realtime subscription service.
+- [x] Add date recommendation utility.
+- [x] Render up to 3 recommended dates on meeting detail when there are at least 2 participants.
+- [x] Plan meeting participation flow in `docs/product/meeting-participation.md`.
+- [x] Add `/meetings/{meetingId}/join` route.
+- [x] Add participation page for invited users.
+- [x] Add participant response save service.
+- [x] Update Firestore rules for authenticated invite readers.
+- [x] Add Firestore rules deploy command to `README.md`.
+- [x] Preserve invite join route through login/signup redirect.
+- [x] Remove redundant name input from participation page.
+- [x] Split participation page into date, optional time, and review steps.
+- [x] Show participating meetings on dashboard.
+- [x] Let participants select any date in the target month while marking host-selected dates.
 - [ ] Deploy Firestore rules after Firebase CLI login.

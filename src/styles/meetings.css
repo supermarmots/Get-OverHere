@@ -414,11 +414,35 @@
 }
 
 .meeting-detail__summary strong {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   color: var(--text-h);
 }
 
 .meeting-detail__summary span {
   color: var(--text);
+}
+
+.meeting-detail__count {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.meeting-detail__participants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.meeting-detail__participants span {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text-h);
+  font-size: 14px;
 }
 
 .meeting-detail__invite {
@@ -464,6 +488,64 @@
   color: #ff8787;
 }
 
+.meeting-recommendations {
+  display: grid;
+  gap: 12px;
+  padding-block: 2px 6px;
+}
+
+.meeting-recommendations__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.meeting-recommendations__header h2 {
+  margin: 0;
+  color: var(--text-h);
+  font-size: 18px;
+}
+
+.meeting-recommendations__header span,
+.meeting-recommendations__empty {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.meeting-recommendations__list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.meeting-recommendations__list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.meeting-recommendations__list strong {
+  color: var(--text-h);
+}
+
+.meeting-recommendations__list span {
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.meeting-recommendations__empty {
+  margin: 0;
+  padding: 12px 0;
+}
+
 .meeting-detail__actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -482,6 +564,122 @@
 .meeting-edit {
   display: grid;
   gap: 22px;
+}
+
+.join-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 28px 20px;
+}
+
+.join-flow {
+  width: min(100%, 560px);
+  min-height: min(680px, calc(100svh - 56px));
+  display: grid;
+  grid-template-rows: auto auto 1fr auto auto;
+  gap: 22px;
+}
+
+.join-flow__top {
+  display: flex;
+  justify-content: flex-end;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.join-flow__header {
+  display: grid;
+  gap: 10px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.join-flow__header h1,
+.join-flow__header p {
+  margin: 0;
+}
+
+.join-flow__header h1 {
+  color: var(--text-h);
+  font-size: 34px;
+}
+
+.join-flow__header p {
+  color: var(--text);
+}
+
+.join-flow__header strong {
+  color: var(--text-h);
+}
+
+.join-date-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.join-date-list__button {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-h);
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.join-date-list__button[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-weight: 800;
+}
+
+.join-date-list__button:focus-visible {
+  outline: 3px solid var(--accent-ring);
+  outline-offset: 2px;
+}
+
+.join-date-list__empty {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.join-calendar {
+  display: grid;
+  gap: 12px;
+}
+
+.join-calendar__day[data-host-date='true'] {
+  border-color: var(--accent);
+}
+
+.join-calendar__day[data-host-date='true']::after {
+  content: '';
+  width: 4px;
+  height: 4px;
+  display: block;
+  margin: 2px auto 0;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.join-calendar__day[aria-pressed='true']::after {
+  background: var(--accent-contrast);
+}
+
+.join-flow__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
 @media (max-width: 640px) {
@@ -541,5 +739,28 @@
 
   .meeting-detail__actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .join-page {
+    align-items: stretch;
+    padding: 22px 18px 28px;
+  }
+
+  .join-flow {
+    min-height: calc(100svh - 50px);
+  }
+
+  .join-flow__header h1 {
+    font-size: 30px;
+  }
+
+  .join-flow__actions {
+    position: sticky;
+    bottom: 0;
+    margin-inline: -18px;
+    padding: 14px 18px 0;
+    background:
+      linear-gradient(180deg, rgba(9, 13, 20, 0), var(--bg) 24%),
+      var(--bg);
   }
 }

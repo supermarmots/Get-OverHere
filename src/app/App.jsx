@@ -4,6 +4,7 @@ import LoginPage from '../features/auth/pages/LoginPage'
 import CreateMeetingPage from '../features/meetings/pages/CreateMeetingPage'
 import EditMeetingPage from '../features/meetings/pages/EditMeetingPage'
 import InviteSharePage from '../features/meetings/pages/InviteSharePage'
+import JoinMeetingPage from '../features/meetings/pages/JoinMeetingPage'
 import MeetingDetailPage from '../features/meetings/pages/MeetingDetailPage'
 import SignupPage from '../features/auth/pages/SignupPage'
 import LandingPage from '../features/landing/pages/LandingPage'
@@ -15,6 +16,7 @@ import {
   getMeetingEditPath,
   getMeetingInviteId,
   getMeetingInvitePath,
+  getMeetingJoinId,
   getRedirectPath,
   isProtectedRoute,
   normalizeRoute,
@@ -68,14 +70,14 @@ function App() {
     }
 
     if (isProtectedRoute(route) && !user) {
-      queueMicrotask(() => navigate(ROUTES.login))
+      queueMicrotask(() => navigate(ROUTES.login, { redirectTo: route }))
       return
     }
 
     if ((route === ROUTES.login || route === ROUTES.signup) && user) {
-      queueMicrotask(() => navigate(ROUTES.dashboard))
+      queueMicrotask(() => navigate(getPostAuthRedirect(routeState)))
     }
-  }, [isAuthReady, navigate, route, user])
+  }, [isAuthReady, navigate, route, routeState, user])
 
   if (!isAuthReady) {
     return (
@@ -146,12 +148,21 @@ function App() {
     )
   }
 
+  if (getMeetingJoinId(route)) {
+    return (
+      <JoinMeetingPage
+        meetingId={getMeetingJoinId(route)}
+        onDashboard={() => navigate(ROUTES.dashboard)}
+      />
+    )
+  }
+
   if (route === ROUTES.signup) {
     return (
       <SignupPage
         onBack={() => navigate(ROUTES.landing)}
-        onLogin={() => navigate(ROUTES.login)}
-        onSuccess={() => navigate(ROUTES.dashboard)}
+        onLogin={() => navigate(ROUTES.login, getAuthRouteState(routeState))}
+        onSuccess={() => navigate(getPostAuthRedirect(routeState))}
       />
     )
   }
@@ -160,8 +171,8 @@ function App() {
     return (
       <LoginPage
         onBack={() => navigate(ROUTES.landing)}
-        onSignup={() => navigate(ROUTES.signup)}
-        onSuccess={() => navigate(ROUTES.dashboard)}
+        onSignup={() => navigate(ROUTES.signup, getAuthRouteState(routeState))}
+        onSuccess={() => navigate(getPostAuthRedirect(routeState))}
       />
     )
   }
@@ -172,6 +183,24 @@ function App() {
       onSignup={() => navigate(ROUTES.signup)}
     />
   )
+}
+
+function getAuthRouteState(routeState) {
+  const redirectTo = getPostAuthRedirect(routeState)
+
+  if (redirectTo === ROUTES.dashboard) {
+    return {}
+  }
+
+  return { redirectTo }
+}
+
+function getPostAuthRedirect(routeState) {
+  if (isProtectedRoute(routeState.redirectTo)) {
+    return routeState.redirectTo
+  }
+
+  return ROUTES.dashboard
 }
 
 export default App

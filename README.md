@@ -52,4 +52,7 @@ npm run build
 # 4. Firebase 배포
 firebase deploy
 
+# 5. Firestore 보안 규칙만 배포
+firebase deploy --only firestore:rules
+
 ```

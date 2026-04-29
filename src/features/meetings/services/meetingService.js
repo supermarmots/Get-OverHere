@@ -1,4 +1,14 @@
-import { collection, doc, getDoc, serverTimestamp, updateDoc, writeBatch } from 'firebase/firestore'
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  increment,
+  onSnapshot,
+  serverTimestamp,
+  updateDoc,
+  writeBatch,
+} from 'firebase/firestore'
 import { db, firebaseConfigReady } from '../../../shared/lib/firebase'
 
 function assertFirestoreReady() {
@@ -82,6 +92,34 @@ export async function getMeeting({ meetingId, userId }) {
   }
 }
 
+export async function getMeetingJoinData({ meetingId, userId }) {
+  assertFirestoreReady()
+
+  const meetingRef = doc(db, 'meetings', meetingId)
+  const meetingSnapshot = await getDoc(meetingRef)
+
+  if (!meetingSnapshot.exists() || meetingSnapshot.data().status === 'deleted') {
+    throw Object.assign(new Error('Meeting not found.'), {
+      code: 'app/not-found',
+    })
+  }
+
+  const meeting = {
+    id: meetingSnapshot.id,
+    ...meetingSnapshot.data(),
+  }
+  const [hostSnapshot, participantSnapshot] = await Promise.all([
+    getDoc(doc(db, 'meetings', meetingId, 'participants', meeting.hostId)),
+    getDoc(doc(db, 'meetings', meetingId, 'participants', userId)),
+  ])
+
+  return {
+    meeting,
+    hostAvailability: hostSnapshot.exists() ? hostSnapshot.data().availability ?? [] : [],
+    participant: participantSnapshot.exists() ? participantSnapshot.data() : null,
+  }
+}
+
 export async function updateMeeting({ form, meetingId, user }) {
   assertFirestoreReady()
 
@@ -112,6 +150,72 @@ export async function updateMeeting({ form, meetingId, user }) {
   })
 
   await batch.commit()
+}
+
+export async function submitMeetingParticipation({ availability, displayName, meetingId, user }) {
+  assertFirestoreReady()
+
+  if (!user?.uid) {
+    throw Object.assign(new Error('User is missing.'), {
+      code: 'app/missing-user',
+    })
+  }
+
+  const participantRef = doc(db, 'meetings', meetingId, 'participants', user.uid)
+  const participantSnapshot = await getDoc(participantRef)
+  const now = serverTimestamp()
+  const batch = writeBatch(db)
+
+  batch.set(participantRef, {
+    availability: availability.map(({ date, endTime, id, startTime }) => ({
+      date,
+      endTime,
+      id,
+      startTime,
+    })),
+    displayName: displayName.trim(),
+    role: participantSnapshot.data()?.role || 'participant',
+    uid: user.uid,
+    updatedAt: now,
+    ...(!participantSnapshot.exists() && { createdAt: now }),
+  }, { merge: true })
+
+  if (!participantSnapshot.exists()) {
+    batch.update(doc(db, 'meetings', meetingId), {
+      participantCount: increment(1),
+      updatedAt: now,
+    })
+  }
+
+  await batch.commit()
+}
+
+export async function getMeetingParticipants({ meetingId }) {
+  assertFirestoreReady()
+
+  const participantSnapshots = await getDocs(collection(db, 'meetings', meetingId, 'participants'))
+
+  return participantSnapshots.docs.map((participantSnapshot) => ({
+    id: participantSnapshot.id,
+    ...participantSnapshot.data(),
+  }))
+}
+
+export function subscribeMeetingParticipants(meetingId, onNext, onError) {
+  assertFirestoreReady()
+
+  return onSnapshot(
+    collection(db, 'meetings', meetingId, 'participants'),
+    (snapshot) => {
+      const participants = snapshot.docs.map((participantSnapshot) => ({
+        id: participantSnapshot.id,
+        ...participantSnapshot.data(),
+      }))
+
+      onNext(participants)
+    },
+    onError,
+  )
 }
 
 export async function deleteMeeting({ meetingId }) {

@@ -20,6 +20,7 @@ function getDisplayName(user) {
 function DashboardPage({ onCreateMeeting, onLogout, onOpenMeeting }) {
   const [status, setStatus] = useState('')
   const [hostedMeetings, setHostedMeetings] = useState([])
+  const [participatingMeetings, setParticipatingMeetings] = useState([])
   const [listError, setListError] = useState('')
   const user = useAuthStore((state) => state.user)
   const nickname = getDisplayName(user)
@@ -29,18 +30,33 @@ function DashboardPage({ onCreateMeeting, onLogout, onOpenMeeting }) {
       return undefined
     }
 
-    let unsubscribe = () => {}
+    let unsubscribeHosted = () => {}
+    let unsubscribeParticipating = () => {}
     let isMounted = true
 
     async function subscribe() {
       try {
-        const { subscribeHostedMeetings } = await import('../services/dashboardService')
+        const { subscribeHostedMeetings, subscribeParticipatingMeetings } = await import('../services/dashboardService')
 
-        unsubscribe = subscribeHostedMeetings(
+        unsubscribeHosted = subscribeHostedMeetings(
           user.uid,
           (meetings) => {
             if (isMounted) {
               setHostedMeetings(meetings)
+              setListError('')
+            }
+          },
+          (error) => {
+            if (isMounted) {
+              setListError(getDashboardErrorMessage(error))
+            }
+          },
+        )
+        unsubscribeParticipating = subscribeParticipatingMeetings(
+          user.uid,
+          (meetings) => {
+            if (isMounted) {
+              setParticipatingMeetings(meetings)
               setListError('')
             }
           },
@@ -61,7 +77,8 @@ function DashboardPage({ onCreateMeeting, onLogout, onOpenMeeting }) {
 
     return () => {
       isMounted = false
-      unsubscribe()
+      unsubscribeHosted()
+      unsubscribeParticipating()
     }
   }, [user?.uid])
 
@@ -121,6 +138,8 @@ function DashboardPage({ onCreateMeeting, onLogout, onOpenMeeting }) {
         />
         <MeetingListSection
           description={meetingSections.participating.description}
+          meetings={participatingMeetings}
+          onOpenMeeting={onOpenMeeting}
           title={meetingSections.participating.title}
         />
         <MeetingListSection

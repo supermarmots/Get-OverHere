@@ -4,26 +4,49 @@ import { getMeetingJoinUrl } from '../../../routes/paths'
 import { getMeetingStatusLabel } from '../../dashboard/lib/meetingFormat'
 import { getDateWithWeekdayLabel } from '../lib/createMeetingForm'
 import { getMeetingErrorMessage } from '../lib/meetingErrors'
+import { getDateRecommendations } from '../lib/meetingRecommendations'
 
 function MeetingDetailPage({ meetingId, onDashboard, onEdit }) {
   const user = useAuthStore((state) => state.user)
   const [meeting, setMeeting] = useState(null)
+  const [participants, setParticipants] = useState([])
+  const [recommendations, setRecommendations] = useState([])
+  const [participantTotal, setParticipantTotal] = useState(0)
   const [error, setError] = useState('')
   const [copyStatus, setCopyStatus] = useState('')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   useEffect(() => {
     let isMounted = true
+    let unsubscribeParticipants = () => {}
 
     async function loadMeeting() {
       try {
-        const { getMeeting } = await import('../services/meetingService')
+        const { getMeeting, subscribeMeetingParticipants } = await import('../services/meetingService')
         const loadedMeeting = await getMeeting({ meetingId, userId: user.uid })
 
         if (isMounted) {
           setMeeting(loadedMeeting)
           setError('')
         }
+
+        unsubscribeParticipants = subscribeMeetingParticipants(
+          meetingId,
+          (participants) => {
+            if (!isMounted) {
+              return
+            }
+
+            setParticipantTotal(participants.length)
+            setParticipants(participants)
+            setRecommendations(getVisibleRecommendations(participants))
+          },
+          (subscribeError) => {
+            if (isMounted) {
+              setError(getMeetingErrorMessage(subscribeError))
+            }
+          },
+        )
       } catch (loadError) {
         if (isMounted) {
           setError(getMeetingErrorMessage(loadError))
@@ -35,6 +58,7 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit }) {
 
     return () => {
       isMounted = false
+      unsubscribeParticipants()
     }
   }, [meetingId, user.uid])
 
@@ -103,8 +127,15 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit }) {
           <span>{meeting.targetMonth}</span>
         </p>
         <p>
-          <strong>참여자</strong>
-          <span>{meeting.participantCount ?? 0}명</span>
+          <strong>
+            참여자
+            <span className="meeting-detail__count">{participantTotal}명</span>
+          </strong>
+          <span className="meeting-detail__participants">
+            {participants.map((participant) => (
+              <span key={participant.id}>{getParticipantName(participant)}</span>
+            ))}
+          </span>
         </p>
         <p>
           <strong>초대 링크</strong>
@@ -124,6 +155,28 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit }) {
       </section>
 
       {copyStatus && <p className="form-status form-status--success">{copyStatus}</p>}
+
+      <section className="meeting-recommendations" aria-labelledby="recommendations-title">
+        <header className="meeting-recommendations__header">
+          <h2 id="recommendations-title">추천 날짜</h2>
+          <span>실시간</span>
+        </header>
+
+        {recommendations.length > 0 && (
+          <ol className="meeting-recommendations__list">
+            {recommendations.map((recommendation) => (
+              <li key={recommendation.date}>
+                <strong>{getDateWithWeekdayLabel(recommendation.date)}</strong>
+                <span>{recommendation.participantCount}명 가능</span>
+              </li>
+            ))}
+          </ol>
+        )}
+
+        {recommendations.length === 0 && (
+          <p className="meeting-recommendations__empty">{getRecommendationEmptyMessage(participantTotal)}</p>
+        )}
+      </section>
 
       <section className="meeting-review__slots" aria-label="내 가능 일정">
         <h2>내 가능 일정</h2>
@@ -168,6 +221,26 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit }) {
       )}
     </main>
   )
+}
+
+function getVisibleRecommendations(participants) {
+  if (participants.length < 2) {
+    return []
+  }
+
+  return getDateRecommendations(participants)
+}
+
+function getRecommendationEmptyMessage(participantTotal) {
+  if (participantTotal < 2) {
+    return '참여자가 2명 이상일 때 실시간 추천 날짜를 표시합니다.'
+  }
+
+  return '아직 추천할 수 있는 후보가 없습니다.'
+}
+
+function getParticipantName(participant) {
+  return participant.displayName || participant.email || '이름 없는 참여자'
 }
 
 function CopyIcon() {
