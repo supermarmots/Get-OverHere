@@ -1,0 +1,80 @@
+:root {
+  --bg: #090d14;
+  --bg-soft: #0f1623;
+  --surface: #141c2b;
+  --surface-raised: #192335;
+  --line: #2a3446;
+  --text: #aeb8c8;
+  --text-h: #f8fafc;
+  --muted: #7f8a9d;
+  --accent: #58a6ff;
+  --accent-strong: #7cc0ff;
+  --accent-contrast: #06111f;
+  --accent-ring: rgba(88, 166, 255, 0.28);
+  --danger: #ff8a80;
+  --danger-bg: rgba(255, 138, 128, 0.12);
+  --success: #7ee2a8;
+  --success-bg: rgba(126, 226, 168, 0.12);
+  --shadow: 0 22px 70px rgba(0, 0, 0, 0.38);
+
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  font: 18px/1.5 var(--sans);
+  letter-spacing: 0;
+  color-scheme: dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background:
+    radial-gradient(circle at top, rgba(88, 166, 255, 0.16), transparent 34rem),
+    var(--bg);
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+h1 {
+  font-family: var(--heading);
+  font-size: 56px;
+  line-height: 1.05;
+  font-weight: 800;
+  color: var(--text-h);
+  text-wrap: balance;
+}
+
+@media (max-width: 640px) {
+  :root {
+    font-size: 16px;
+  }
+
+  h1 {
+    font-size: 40px;
+  }
+}

@@ -1,0 +1,51 @@
+.landing {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 48px 20px;
+}
+
+.landing__content {
+  width: min(100%, 560px);
+  text-align: center;
+}
+
+.landing__eyebrow {
+  margin: 0 0 14px;
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.landing h1 {
+  margin: 0;
+}
+
+.landing__description {
+  margin: 18px auto 34px;
+  color: var(--text);
+  font-size: 20px;
+  line-height: 1.6;
+}
+
+.landing__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .landing {
+    align-items: center;
+    padding: 36px 18px;
+  }
+
+  .landing__description {
+    margin-bottom: 28px;
+    font-size: 17px;
+  }
+
+  .landing__actions {
+    flex-direction: column;
+  }
+}
