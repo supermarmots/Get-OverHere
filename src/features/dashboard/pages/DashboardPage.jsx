@@ -40,8 +40,8 @@ function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeet
       return undefined
     }
 
-    let unsubscribeHosted = () => {}
-    let unsubscribeParticipating = () => {}
+    let unsubscribeHosted = () => { }
+    let unsubscribeParticipating = () => { }
     let isMounted = true
 
     async function subscribe() {
@@ -146,7 +146,7 @@ function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeet
   return (
     <main className="dashboard">
       <header className="dashboard__header">
-        <p className="landing__eyebrow">{SERVICE_NAME}</p>
+        {/* <p className="landing__eyebrow">{SERVICE_NAME}</p> */}
         <h1>
           {nickname}
           {DASHBOARD_COPY.greetingSuffix}

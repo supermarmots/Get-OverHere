@@ -24,7 +24,7 @@ export const DASHBOARD_COPY = {
   logout: '로그아웃',
   logoutError: '로그아웃 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.',
   meetingsTitle: '내 약속',
-  profile: '프로필',
+  profile: '마이페이지',
 }
 
 export const DEFAULT_USER_NAME = '사용자'
