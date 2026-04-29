@@ -1,8 +1,10 @@
 import { create } from 'zustand'
 
 export const useAuthStore = create((set) => ({
-  user: null,
+  error: '',
   isAuthReady: false,
-  setAuthUser: (user) => set({ user, isAuthReady: true }),
-  clearAuthUser: () => set({ user: null, isAuthReady: true }),
+  user: null,
+  setAuthError: (error) => set({ error, isAuthReady: true, user: null }),
+  setAuthUser: (user) => set({ error: '', user, isAuthReady: true }),
+  clearAuthUser: () => set({ error: '', user: null, isAuthReady: true }),
 }))

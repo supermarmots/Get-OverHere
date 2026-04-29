@@ -64,13 +64,15 @@ Firestore 예상 구조:
 
 ## 1차 개발 범위
 
-- 로그인 성공 시 `/dashboard`로 이동
-- `DashboardPage` 추가
-- 현재 사용자 표시
-- 로그아웃 버튼
-- 빈 상태 UI
-- `약속 만들기`, `초대 링크로 참여` 버튼 placeholder
-- 향후 Firestore 약속 목록 연결을 위한 섹션 구조
+- [x] 로그인 성공 시 `/dashboard`로 이동
+- [x] `DashboardPage` 추가
+- [x] 현재 사용자 표시
+- [x] 로그아웃 버튼
+- [x] 빈 상태 UI
+- [x] `약속 만들기`, `초대 링크로 참여` 버튼 placeholder
+- [x] 향후 Firestore 약속 목록 연결을 위한 섹션 구조
+- [x] 비로그인 사용자의 `/dashboard` 접근 시 `/login`으로 이동
+- [x] 이미 로그인한 사용자의 `/login`, `/signup` 접근 시 `/dashboard`로 이동
 
 ## 범위 제외
 

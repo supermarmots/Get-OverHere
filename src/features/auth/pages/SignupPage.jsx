@@ -2,9 +2,12 @@ import { useState } from 'react'
 import OAuthButton from '../components/OAuthButton'
 import SignupForm from '../components/SignupForm'
 import { getAuthErrorMessage } from '../lib/authErrors'
+import { mapAuthUser } from '../lib/mapAuthUser'
 import { initialSignupForm, validateSignupForm } from '../lib/signupValidation'
+import { useAuthStore } from '../../../stores/authStore'
 
-function SignupPage({ onBack, onLogin }) {
+function SignupPage({ onBack, onLogin, onSuccess }) {
+  const setAuthUser = useAuthStore((state) => state.setAuthUser)
   const [signupForm, setSignupForm] = useState(initialSignupForm)
   const [formErrors, setFormErrors] = useState({})
   const [status, setStatus] = useState({ type: '', message: '' })
@@ -34,15 +37,17 @@ function SignupPage({ onBack, onLogin }) {
       const name = signupForm.name.trim()
       const nickname = signupForm.nickname.trim()
 
-      await signupWithEmail({
+      const user = await signupWithEmail({
         email: signupForm.email.trim(),
         password: signupForm.password,
         name,
         nickname,
       })
 
+      setAuthUser(mapAuthUser(user))
       setSignupForm(initialSignupForm)
       setStatus({ type: 'success', message: '회원가입이 완료되었습니다.' })
+      onSuccess()
     } catch (error) {
       setStatus({ type: 'error', message: getAuthErrorMessage(error) })
     } finally {
@@ -56,8 +61,10 @@ function SignupPage({ onBack, onLogin }) {
 
     try {
       const { continueWithGoogle } = await import('../services/authService')
-      await continueWithGoogle()
+      const user = await continueWithGoogle()
+      setAuthUser(mapAuthUser(user))
       setStatus({ type: 'success', message: 'Google 계정으로 가입되었습니다.' })
+      onSuccess()
     } catch (error) {
       setStatus({ type: 'error', message: getAuthErrorMessage(error) })
     } finally {

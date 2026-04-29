@@ -3,8 +3,11 @@ import LoginForm from '../components/LoginForm'
 import OAuthButton from '../components/OAuthButton'
 import { getAuthErrorMessage } from '../lib/authErrors'
 import { initialLoginForm, validateLoginForm } from '../lib/loginValidation'
+import { mapAuthUser } from '../lib/mapAuthUser'
+import { useAuthStore } from '../../../stores/authStore'
 
-function LoginPage({ onBack, onSignup }) {
+function LoginPage({ onBack, onSignup, onSuccess }) {
+  const setAuthUser = useAuthStore((state) => state.setAuthUser)
   const [loginForm, setLoginForm] = useState(initialLoginForm)
   const [formErrors, setFormErrors] = useState({})
   const [status, setStatus] = useState({ type: '', message: '' })
@@ -32,13 +35,15 @@ function LoginPage({ onBack, onSignup }) {
     try {
       const { loginWithEmail } = await import('../services/authService')
 
-      await loginWithEmail({
+      const user = await loginWithEmail({
         email: loginForm.email.trim(),
         password: loginForm.password,
       })
 
+      setAuthUser(mapAuthUser(user))
       setLoginForm(initialLoginForm)
       setStatus({ type: 'success', message: '로그인되었습니다.' })
+      onSuccess()
     } catch (error) {
       setStatus({ type: 'error', message: getAuthErrorMessage(error) })
     } finally {
@@ -52,8 +57,10 @@ function LoginPage({ onBack, onSignup }) {
 
     try {
       const { continueWithGoogle } = await import('../services/authService')
-      await continueWithGoogle()
+      const user = await continueWithGoogle()
+      setAuthUser(mapAuthUser(user))
       setStatus({ type: 'success', message: 'Google 계정으로 로그인되었습니다.' })
+      onSuccess()
     } catch (error) {
       setStatus({ type: 'error', message: getAuthErrorMessage(error) })
     } finally {

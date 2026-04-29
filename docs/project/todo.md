@@ -29,7 +29,13 @@
 
 ## Next Candidate Work
 
-- [ ] Wire Firebase auth state into `authStore`.
-- [ ] Redirect authenticated users to `/dashboard`.
-- [ ] Implement `DashboardPage` from `docs/product/authenticated-landing.md`.
+- [x] Wire Firebase auth state into `authStore`.
+- [x] Redirect authenticated users to `/dashboard`.
+- [x] Implement `DashboardPage` from `docs/product/authenticated-landing.md`.
+- [x] Add `/dashboard` route and protected-route redirect behavior.
+- [x] Add dashboard dark mobile styles.
+- [x] Add logout action.
+- [x] Update dashboard product plan implementation status.
+- [x] Run `npm run lint`.
+- [x] Run `npm run build`.
 - [ ] Add meeting creation route and page skeleton.

@@ -33,6 +33,8 @@ src/
       lib/
       pages/
       services/
+    dashboard/
+      pages/
     landing/
       pages/
   routes/
@@ -46,6 +48,7 @@ src/
     base.css
     pages.css
     auth.css
+    dashboard.css
   main.jsx
 ```
 
@@ -57,7 +60,7 @@ src/
 
 ### `features/`
 
-도메인 또는 기능 단위 코드를 둔다. 현재는 `auth`와 `landing`이 있다.
+도메인 또는 기능 단위 코드를 둔다. 현재는 `auth`, `dashboard`, `landing`이 있다.
 
 - `components/`: 해당 기능에서만 쓰는 UI 조각
 - `pages/`: 라우트 단위 화면

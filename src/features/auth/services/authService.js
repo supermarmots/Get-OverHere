@@ -1,6 +1,8 @@
 import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
   signInWithEmailAndPassword,
   signInWithPopup,
   updateProfile,
@@ -60,6 +62,18 @@ export async function loginWithEmail({ email, password }) {
 
   const credential = await signInWithEmailAndPassword(auth, email, password)
   return credential.user
+}
+
+export function observeAuthState(onChange) {
+  assertFirebaseReady()
+
+  return onAuthStateChanged(auth, onChange)
+}
+
+export async function logout() {
+  assertFirebaseReady()
+
+  await signOut(auth)
 }
 
 export async function continueWithGoogle() {
