@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import OAuthButton from '../components/auth/OAuthButton'
-import SignupForm from '../components/auth/SignupForm'
+import OAuthButton from '../components/OAuthButton'
+import SignupForm from '../components/SignupForm'
 import { getAuthErrorMessage } from '../lib/authErrors'
 import { initialSignupForm, validateSignupForm } from '../lib/signupValidation'
 
@@ -30,7 +30,7 @@ function SignupPage({ onBack, onLogin }) {
     setIsSubmitting(true)
 
     try {
-      const { signupWithEmail } = await import('../lib/auth')
+      const { signupWithEmail } = await import('../services/authService')
       const name = signupForm.name.trim()
       const nickname = signupForm.nickname.trim()
 
@@ -55,7 +55,7 @@ function SignupPage({ onBack, onLogin }) {
     setIsSubmitting(true)
 
     try {
-      const { continueWithGoogle } = await import('../lib/auth')
+      const { continueWithGoogle } = await import('../services/authService')
       await continueWithGoogle()
       setStatus({ type: 'success', message: 'Google 계정으로 가입되었습니다.' })
     } catch (error) {

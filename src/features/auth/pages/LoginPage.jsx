@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import LoginForm from '../components/auth/LoginForm'
-import OAuthButton from '../components/auth/OAuthButton'
+import LoginForm from '../components/LoginForm'
+import OAuthButton from '../components/OAuthButton'
 import { getAuthErrorMessage } from '../lib/authErrors'
 import { initialLoginForm, validateLoginForm } from '../lib/loginValidation'
 
@@ -30,7 +30,7 @@ function LoginPage({ onBack, onSignup }) {
     setIsSubmitting(true)
 
     try {
-      const { loginWithEmail } = await import('../lib/auth')
+      const { loginWithEmail } = await import('../services/authService')
 
       await loginWithEmail({
         email: loginForm.email.trim(),
@@ -51,7 +51,7 @@ function LoginPage({ onBack, onSignup }) {
     setIsSubmitting(true)
 
     try {
-      const { continueWithGoogle } = await import('../lib/auth')
+      const { continueWithGoogle } = await import('../services/authService')
       await continueWithGoogle()
       setStatus({ type: 'success', message: 'Google 계정으로 로그인되었습니다.' })
     } catch (error) {

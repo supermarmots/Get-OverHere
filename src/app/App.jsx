@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import LandingPage from './pages/LandingPage'
-import LoginPage from './pages/LoginPage'
-import SignupPage from './pages/SignupPage'
-import { ROUTES, getRedirectPath, normalizeRoute } from './routes/paths'
+import LoginPage from '../features/auth/pages/LoginPage'
+import SignupPage from '../features/auth/pages/SignupPage'
+import LandingPage from '../features/landing/pages/LandingPage'
+import { ROUTES, getRedirectPath, normalizeRoute } from '../routes/paths'
 
 function App() {
   const [route, setRoute] = useState(() => {

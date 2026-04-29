@@ -6,7 +6,7 @@ import {
   updateProfile,
 } from 'firebase/auth'
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
-import { auth, db, firebaseConfigReady } from './firebase'
+import { auth, db, firebaseConfigReady } from '../../../shared/lib/firebase'
 
 function getEmailNickname(email) {
   return email.split('@')[0] || '사용자'
