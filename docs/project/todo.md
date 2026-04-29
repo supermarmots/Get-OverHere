@@ -119,4 +119,5 @@
 - [x] Add explicit collection group participants read rule.
 - [x] Keep participant documents under `meetings/{meetingId}/participants/{uid}` without duplicating `meetingId`.
 - [x] Read participating meetings through direct participant path checks instead of collection group query.
+- [x] Create refactor roadmap at `docs/refactor/refactor-roadmap.md`.
 - [ ] Deploy Firestore rules after Firebase CLI login.
