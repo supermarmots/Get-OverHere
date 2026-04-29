@@ -152,6 +152,15 @@ export async function updateMeeting({ form, meetingId, user }) {
   await batch.commit()
 }
 
+export async function updateMeetingStatus({ meetingId, status }) {
+  assertFirestoreReady()
+
+  await updateDoc(doc(db, 'meetings', meetingId), {
+    status,
+    updatedAt: serverTimestamp(),
+  })
+}
+
 export async function submitMeetingParticipation({ availability, displayName, meetingId, user }) {
   assertFirestoreReady()
 

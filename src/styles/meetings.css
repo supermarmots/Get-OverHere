@@ -266,6 +266,12 @@
   padding: 22px;
 }
 
+.confirm-dialog form {
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+}
+
 .confirm-dialog h2,
 .confirm-dialog p {
   margin: 0;
@@ -347,7 +353,7 @@
 
 .meeting-detail__header {
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  grid-template-columns: 88px minmax(0, 1fr) 88px;
   align-items: center;
   gap: 12px;
   padding-bottom: 22px;
@@ -372,6 +378,24 @@
 .meeting-detail__back {
   grid-column: 1;
   justify-self: start;
+}
+
+.meeting-detail__confirm {
+  grid-column: 3;
+  justify-self: end;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.meeting-detail__confirm:focus-visible {
+  outline: 3px solid var(--accent-ring);
+  outline-offset: 2px;
 }
 
 .plain-icon-button {
@@ -659,21 +683,21 @@
 }
 
 .join-calendar__day[data-host-date='true'] {
-  border-color: var(--accent);
+  border-color: transparent;
 }
 
 .join-calendar__day[data-host-date='true']::after {
   content: '';
-  width: 4px;
-  height: 4px;
+  width: 16px;
+  height: 3px;
   display: block;
-  margin: 2px auto 0;
+  margin: 3px auto 0;
   border-radius: 999px;
-  background: currentColor;
+  background: #ffb347;
 }
 
 .join-calendar__day[aria-pressed='true']::after {
-  background: var(--accent-contrast);
+  background: #ffb347;
 }
 
 .join-flow__actions {

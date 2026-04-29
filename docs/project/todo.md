@@ -110,4 +110,13 @@
 - [x] Split participation page into date, optional time, and review steps.
 - [x] Show participating meetings on dashboard.
 - [x] Let participants select any date in the target month while marking host-selected dates.
+- [x] Change collecting meeting status label to `진행중`.
+- [x] Add host-only confirm action on meeting detail.
+- [x] Add host-only reopen action in dashboard confirmed section.
+- [x] Remove dashboard `내 약속` realtime notice header.
+- [x] Add invite link join modal on dashboard.
+- [x] Make participating meeting dashboard query independent from participant role.
+- [x] Add explicit collection group participants read rule.
+- [x] Keep participant documents under `meetings/{meetingId}/participants/{uid}` without duplicating `meetingId`.
+- [x] Read participating meetings through direct participant path checks instead of collection group query.
 - [ ] Deploy Firestore rules after Firebase CLI login.

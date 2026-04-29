@@ -1,6 +1,14 @@
 import MeetingCard from './MeetingCard'
 
-function MeetingListSection({ description, meetings = [], onOpenMeeting, title }) {
+function MeetingListSection({
+  actionLabel,
+  canUseAction,
+  description,
+  meetings = [],
+  onMeetingAction,
+  onOpenMeeting,
+  title,
+}) {
   const hasMeetings = meetings.length > 0
 
   return (
@@ -14,7 +22,13 @@ function MeetingListSection({ description, meetings = [], onOpenMeeting, title }
         <ol className="meeting-list__items">
           {meetings.map((meeting) => (
             <li key={meeting.id}>
-              <MeetingCard meeting={meeting} onOpen={onOpenMeeting} />
+              <MeetingCard
+                actionLabel={actionLabel}
+                canUseAction={canUseAction}
+                meeting={meeting}
+                onAction={onMeetingAction}
+                onOpen={onOpenMeeting}
+              />
             </li>
           ))}
         </ol>

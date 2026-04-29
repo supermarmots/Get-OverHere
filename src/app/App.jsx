@@ -99,6 +99,7 @@ function App() {
     return (
       <DashboardPage
         onCreateMeeting={() => navigate(ROUTES.meetingNew)}
+        onJoinWithInvite={(joinPath) => navigate(joinPath)}
         onLogout={() => navigate(ROUTES.landing)}
         onOpenMeeting={(meetingId) => navigate(getMeetingDetailPath(meetingId))}
       />

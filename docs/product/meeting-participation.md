@@ -20,6 +20,7 @@
 - 약속 정보: `meetings/{meetingId}`
 - 주최자 가능 날짜: `meetings/{meetingId}/participants/{hostId}.availability`
 - 참여자 응답: `meetings/{meetingId}/participants/{uid}`
+- 참여자 응답 필수 필드: `uid`, `availability`, `displayName`, `role`
 - 같은 사용자가 다시 제출하면 기존 응답을 업데이트한다.
 - 새 참여자인 경우에만 `meetings/{meetingId}.participantCount`를 1 증가시킨다.
 
@@ -40,6 +41,7 @@
 - 참여 화면은 `날짜 선택 -> 시간 선택 -> 제출 확인` 단계형 UI로 구성한다.
 - 주최자 가능 날짜는 선택 제한이 아니라 참고 표시로만 사용한다.
 - 기존 참여자가 다시 제출하면 `participants/{uid}`를 업데이트한다.
+- 다시 제출하면 기존 문서에도 `uid`를 보강한다.
 - 새 참여자일 때만 `participantCount`를 1 증가시킨다.
 - 주최자가 참여 페이지로 제출해도 기존 `host` role은 유지한다.
 

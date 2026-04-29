@@ -1,6 +1,6 @@
 export function getMeetingStatusLabel(status) {
   if (status === 'collecting') {
-    return '투표 중'
+    return '진행중'
   }
 
   if (status === 'confirmed') {

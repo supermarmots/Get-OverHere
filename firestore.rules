@@ -23,6 +23,10 @@ service cloud.firestore {
       }
     }
 
+    match /{path=**}/participants/{userId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.uid;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

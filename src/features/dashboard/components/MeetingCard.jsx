@@ -1,6 +1,8 @@
 import { getMeetingParticipantLabel, getMeetingStatusLabel } from '../lib/meetingFormat'
 
-function MeetingCard({ meeting, onOpen }) {
+function MeetingCard({ actionLabel, canUseAction, meeting, onAction, onOpen }) {
+  const showAction = actionLabel && onAction && canUseAction?.(meeting)
+
   return (
     <article
       className="meeting-card"
@@ -28,6 +30,18 @@ function MeetingCard({ meeting, onOpen }) {
           <dd>{getMeetingParticipantLabel(meeting)}</dd>
         </div>
       </dl>
+      {showAction && (
+        <button
+          type="button"
+          className="text-button meeting-card__button"
+          onClick={(event) => {
+            event.stopPropagation()
+            onAction(meeting)
+          }}
+        >
+          {actionLabel}
+        </button>
+      )}
     </article>
   )
 }

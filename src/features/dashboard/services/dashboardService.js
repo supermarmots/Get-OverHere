@@ -1,4 +1,4 @@
-import { collection, collectionGroup, getDoc, onSnapshot, query, where } from 'firebase/firestore'
+import { collection, doc, getDoc, onSnapshot, query, where } from 'firebase/firestore'
 import { db, firebaseConfigReady } from '../../../shared/lib/firebase'
 
 function assertDashboardReady(userId) {
@@ -39,39 +39,31 @@ export function subscribeHostedMeetings(userId, onChange, onError) {
 export function subscribeParticipatingMeetings(userId, onChange, onError) {
   assertDashboardReady(userId)
 
-  const participantsQuery = query(
-    collectionGroup(db, 'participants'),
-    where('uid', '==', userId),
-    where('role', '==', 'participant'),
-  )
-
   return onSnapshot(
-    participantsQuery,
+    collection(db, 'meetings'),
     async (snapshot) => {
       try {
-        const meetings = await Promise.all(snapshot.docs.map(async (participantDoc) => {
-          const meetingRef = participantDoc.ref.parent.parent
+        const visibleMeetings = snapshot.docs
+          .map((meetingDoc) => ({ id: meetingDoc.id, ...meetingDoc.data() }))
+          .filter((meeting) => {
+            return meeting.status !== 'deleted'
+              && meeting.hostId !== userId
+          })
 
-          if (!meetingRef) {
-            return null
-          }
+        const meetings = await Promise.all(visibleMeetings.map(async (meeting) => {
+          const participantSnapshot = await getDoc(doc(db, 'meetings', meeting.id, 'participants', userId))
 
-          const meetingSnapshot = await getDoc(meetingRef)
-
-          if (!meetingSnapshot.exists()) {
+          if (!participantSnapshot.exists()) {
             return null
           }
 
           return {
-            id: meetingSnapshot.id,
-            ...meetingSnapshot.data(),
-            participant: participantDoc.data(),
+            ...meeting,
+            participant: participantSnapshot.data(),
           }
         }))
 
-        onChange(sortMeetings(
-          meetings.filter((meeting) => meeting && meeting.status !== 'deleted'),
-        ))
+        onChange(sortMeetings(meetings.filter(Boolean)))
       } catch (error) {
         onError(error)
       }

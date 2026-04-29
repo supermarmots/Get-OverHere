@@ -64,6 +64,23 @@ export function getMeetingJoinUrl(meetingId, origin = window.location.origin) {
   return `${origin}/meetings/${meetingId}/join`
 }
 
+export function getMeetingJoinPathFromInput(input) {
+  const trimmedInput = input.trim()
+
+  if (getMeetingJoinId(trimmedInput)) {
+    return trimmedInput
+  }
+
+  try {
+    const url = new URL(trimmedInput)
+    const meetingId = getMeetingJoinId(url.pathname)
+
+    return meetingId ? getMeetingJoinPath(meetingId) : ''
+  } catch {
+    return ''
+  }
+}
+
 export function isProtectedRoute(pathname) {
   return pathname === ROUTES.dashboard
     || pathname === ROUTES.meetingNew

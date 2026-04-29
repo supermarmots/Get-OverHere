@@ -83,6 +83,16 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit }) {
     }
   }
 
+  async function confirmMeeting() {
+    try {
+      const { updateMeetingStatus } = await import('../services/meetingService')
+      await updateMeetingStatus({ meetingId, status: 'confirmed' })
+      setMeeting((currentMeeting) => ({ ...currentMeeting, status: 'confirmed' }))
+    } catch (confirmError) {
+      setError(getMeetingErrorMessage(confirmError))
+    }
+  }
+
   if (error) {
     return (
       <main className="meeting-detail">
@@ -100,6 +110,8 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit }) {
   }
 
   const inviteUrl = getMeetingJoinUrl(meeting.id)
+  const isHost = meeting.hostId === user.uid
+  const canConfirm = isHost && meeting.status === 'collecting'
 
   return (
     <main className="meeting-detail">
@@ -114,6 +126,11 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit }) {
           <BackIcon />
         </button>
         <h1>{meeting.title}</h1>
+        {canConfirm && (
+          <button type="button" className="meeting-detail__confirm" onClick={confirmMeeting}>
+            확정하기
+          </button>
+        )}
         <p>{meeting.description || '설명이 없습니다.'}</p>
       </header>
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { getMeetingJoinPathFromInput } from '../../../routes/paths'
 import { useAuthStore } from '../../../stores/authStore'
 import { DEFAULT_USER_NAME, DASHBOARD_COPY, SERVICE_NAME } from '../../../shared/lib/appCopy'
 import MeetingListSection from '../components/MeetingListSection'
@@ -17,13 +18,22 @@ function getDisplayName(user) {
   return DEFAULT_USER_NAME
 }
 
-function DashboardPage({ onCreateMeeting, onLogout, onOpenMeeting }) {
+function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeeting }) {
   const [status, setStatus] = useState('')
   const [hostedMeetings, setHostedMeetings] = useState([])
   const [participatingMeetings, setParticipatingMeetings] = useState([])
+  const [inviteLink, setInviteLink] = useState('')
+  const [inviteError, setInviteError] = useState('')
+  const [showInviteDialog, setShowInviteDialog] = useState(false)
   const [listError, setListError] = useState('')
   const user = useAuthStore((state) => state.user)
   const nickname = getDisplayName(user)
+  const activeHostedMeetings = hostedMeetings.filter((meeting) => meeting.status !== 'confirmed')
+  const activeParticipatingMeetings = participatingMeetings.filter((meeting) => meeting.status !== 'confirmed')
+  const confirmedMeetings = getUniqueMeetings([
+    ...hostedMeetings.filter((meeting) => meeting.status === 'confirmed'),
+    ...participatingMeetings.filter((meeting) => meeting.status === 'confirmed'),
+  ])
 
   useEffect(() => {
     if (!user?.uid) {
@@ -94,6 +104,45 @@ function DashboardPage({ onCreateMeeting, onLogout, onOpenMeeting }) {
     }
   }
 
+  async function reopenMeeting(meeting) {
+    setStatus('')
+
+    try {
+      const { updateMeetingStatus } = await import('../../meetings/services/meetingService')
+      await updateMeetingStatus({ meetingId: meeting.id, status: 'collecting' })
+    } catch {
+      setStatus('약속을 다시 진행하는 중 문제가 발생했습니다.')
+    }
+  }
+
+  function openInviteDialog() {
+    setInviteLink('')
+    setInviteError('')
+    setShowInviteDialog(true)
+  }
+
+  function closeInviteDialog() {
+    setShowInviteDialog(false)
+    setInviteError('')
+  }
+
+  function joinWithInvite(event) {
+    event.preventDefault()
+    const joinPath = getMeetingJoinPathFromInput(inviteLink)
+
+    if (!inviteLink.trim()) {
+      setInviteError('초대 링크를 입력해 주세요.')
+      return
+    }
+
+    if (!joinPath) {
+      setInviteError('올바른 초대 링크를 입력해 주세요.')
+      return
+    }
+
+    onJoinWithInvite(joinPath)
+  }
+
   return (
     <main className="dashboard">
       <header className="dashboard__header">
@@ -116,7 +165,7 @@ function DashboardPage({ onCreateMeeting, onLogout, onOpenMeeting }) {
         <button type="button" className="landing__login" onClick={onCreateMeeting}>
           {DASHBOARD_COPY.createMeeting}
         </button>
-        <button type="button" className="landing__signup">
+        <button type="button" className="landing__signup" onClick={openInviteDialog}>
           {DASHBOARD_COPY.joinWithInvite}
         </button>
       </section>
@@ -124,31 +173,64 @@ function DashboardPage({ onCreateMeeting, onLogout, onOpenMeeting }) {
       {status && <p className="form-status form-status--error">{status}</p>}
       {listError && <p className="form-status form-status--error">{listError}</p>}
 
-      <section className="dashboard__meetings" aria-labelledby="meetings-title">
-        <header className="dashboard__section-header">
-          <h2 id="meetings-title">{DASHBOARD_COPY.meetingsTitle}</h2>
-          <p>{DASHBOARD_COPY.emptyRealtimeNotice}</p>
-        </header>
-
+      <section className="dashboard__meetings" aria-label="약속 목록">
         <MeetingListSection
           description={meetingSections.hosting.description}
-          meetings={hostedMeetings}
+          meetings={activeHostedMeetings}
           onOpenMeeting={onOpenMeeting}
           title={meetingSections.hosting.title}
         />
         <MeetingListSection
           description={meetingSections.participating.description}
-          meetings={participatingMeetings}
+          meetings={activeParticipatingMeetings}
           onOpenMeeting={onOpenMeeting}
           title={meetingSections.participating.title}
         />
         <MeetingListSection
+          actionLabel="재개최하기"
+          canUseAction={(meeting) => meeting.hostId === user.uid}
           description={meetingSections.confirmed.description}
+          meetings={confirmedMeetings}
+          onMeetingAction={reopenMeeting}
+          onOpenMeeting={onOpenMeeting}
           title={meetingSections.confirmed.title}
         />
       </section>
+
+      {showInviteDialog && (
+        <dialog className="confirm-dialog" open>
+          <form aria-labelledby="invite-dialog-title" onSubmit={joinWithInvite}>
+            <h2 id="invite-dialog-title">초대 링크로 참여</h2>
+            <label className="step-field">
+              초대 링크
+              <input
+                type="url"
+                value={inviteLink}
+                placeholder="https://..."
+                onChange={(event) => {
+                  setInviteLink(event.target.value)
+                  setInviteError('')
+                }}
+              />
+            </label>
+            {inviteError && <p className="form-status form-status--error">{inviteError}</p>}
+            <footer className="confirm-dialog__actions">
+              <button type="button" className="landing__signup" onClick={closeInviteDialog}>
+                취소
+              </button>
+              <button type="submit" className="landing__login">
+                참여
+              </button>
+            </footer>
+          </form>
+        </dialog>
+      )}
     </main>
   )
+}
+
+function getUniqueMeetings(meetings) {
+  return Array.from(new Map(meetings.map((meeting) => [meeting.id, meeting])).values())
 }
 
 export default DashboardPage
