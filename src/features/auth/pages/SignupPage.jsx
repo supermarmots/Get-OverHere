@@ -5,6 +5,7 @@ import { getAuthErrorMessage } from '../lib/authErrors'
 import { mapAuthUser } from '../lib/mapAuthUser'
 import { initialSignupForm, validateSignupForm } from '../lib/signupValidation'
 import { useAuthStore } from '../../../stores/authStore'
+import { SERVICE_NAME } from '../../../shared/lib/appCopy'
 
 function SignupPage({ onBack, onLogin, onSuccess }) {
   const setAuthUser = useAuthStore((state) => state.setAuthUser)
@@ -76,7 +77,7 @@ function SignupPage({ onBack, onLogin, onSuccess }) {
     <main className="auth-page">
       <section className="auth-panel" aria-labelledby="signup-title">
         <button type="button" className="text-button" onClick={onBack}>
-          Get Over Here
+          {SERVICE_NAME}
         </button>
         <header className="auth-panel__header">
           <p className="landing__eyebrow">계정 만들기</p>

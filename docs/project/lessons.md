@@ -6,3 +6,4 @@
 - Prefer semantic HTML (`main`, `section`, `header`, `nav`, `footer`, `form`, `p`) over generic `div`. Avoid card-style UI wrappers unless the content is genuinely a repeated card or modal.
 - Keep all documentation Markdown under `docs/` except root `README.md` and `AGENTS.md`.
 - Align directory architecture with the actual stack: React/Vite app composition, Firebase services, feature folders, shared infrastructure, routes, styles, and Zustand stores.
+- During refactoring sessions, avoid hard-coded UI copy where a small constants module is enough, but do not introduce broad abstractions. Keep conditions simple and avoid unnecessary ternaries.

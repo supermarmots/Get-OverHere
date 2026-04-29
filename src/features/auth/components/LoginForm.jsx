@@ -1,3 +1,5 @@
+import { AUTH_COPY, getSubmitLabel } from '../../../shared/lib/appCopy'
+
 const fields = [
   {
     label: '이메일',
@@ -40,7 +42,7 @@ function LoginForm({ errors, form, isSubmitting, onChange, onSubmit, status }) {
       )}
 
       <button type="submit" className="landing__login" disabled={isSubmitting}>
-        {isSubmitting ? '처리 중' : '로그인'}
+        {getSubmitLabel(isSubmitting, AUTH_COPY.login)}
       </button>
     </form>
   )

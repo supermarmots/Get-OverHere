@@ -1,0 +1,384 @@
+.step-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 32px 20px;
+}
+
+.step-flow {
+  width: min(100%, 520px);
+  min-height: min(720px, calc(100svh - 64px));
+  display: grid;
+  grid-template-rows: auto auto 1fr auto auto;
+  gap: 24px;
+}
+
+.step-flow__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.step-flow__progress {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.step-flow__header {
+  display: grid;
+  gap: 12px;
+}
+
+.step-flow__header h1 {
+  margin: 0;
+  font-size: 36px;
+}
+
+.step-flow__body {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+
+.step-flow__footer {
+  display: flex;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.step-field {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--text-h);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.step-field p {
+  margin: 0;
+  color: var(--text);
+  font-weight: 400;
+}
+
+.step-field input,
+.step-field textarea {
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-soft);
+  color: var(--text-h);
+  font-size: 16px;
+}
+
+.step-field textarea {
+  resize: vertical;
+}
+
+.step-field input:focus,
+.step-field textarea:focus {
+  border-color: var(--accent);
+  outline: 3px solid var(--accent-ring);
+}
+
+.step-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+}
+
+.date-picker {
+  display: grid;
+  gap: 12px;
+}
+
+.month-picker__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.month-picker__nav strong {
+  color: var(--text-h);
+  font-size: 20px;
+}
+
+.month-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.month-picker__month {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.month-picker__month[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-weight: 800;
+}
+
+.month-picker__month:focus-visible {
+  outline: 3px solid var(--accent-ring);
+  outline-offset: 2px;
+}
+
+.date-picker__weekdays,
+.date-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.date-picker__weekdays span {
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.date-picker__grid {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.date-picker__day {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.date-picker__day[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-weight: 800;
+}
+
+.date-picker__day:focus-visible {
+  outline: 3px solid var(--accent-ring);
+  outline-offset: 2px;
+}
+
+.date-picker__empty {
+  min-height: 1px;
+}
+
+.time-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0;
+  padding: 16px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.time-row legend {
+  grid-column: 1 / -1;
+  padding: 0 0 8px;
+  color: var(--text-h);
+  font-weight: 700;
+}
+
+.meeting-review {
+  display: grid;
+  gap: 18px;
+}
+
+.meeting-review p {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.meeting-review strong,
+.meeting-review__slots h2 {
+  color: var(--text-h);
+}
+
+.meeting-review span {
+  color: var(--text);
+}
+
+.meeting-review__slots {
+  display: grid;
+  gap: 12px;
+}
+
+.meeting-review__slots h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.confirm-dialog {
+  width: min(calc(100% - 36px), 420px);
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.confirm-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.86);
+}
+
+.confirm-dialog section {
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+}
+
+.confirm-dialog h2,
+.confirm-dialog p {
+  margin: 0;
+}
+
+.confirm-dialog h2 {
+  color: var(--text-h);
+  font-size: 22px;
+}
+
+.confirm-dialog__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.invite-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 32px 20px;
+}
+
+.invite-share {
+  width: min(100%, 560px);
+  display: grid;
+  gap: 24px;
+}
+
+.invite-share__header {
+  display: grid;
+  gap: 12px;
+}
+
+.invite-share__header h1 {
+  margin: 0;
+  font-size: 36px;
+}
+
+.invite-share__body {
+  display: grid;
+  gap: 18px;
+}
+
+.invite-share__body p {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.invite-share__body strong {
+  color: var(--text-h);
+}
+
+.invite-share__body span {
+  color: var(--text);
+}
+
+.invite-share__link {
+  overflow-wrap: anywhere;
+  padding: 12px 0;
+  border-block: 1px solid var(--line);
+}
+
+.invite-share__actions {
+  display: flex;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .step-page {
+    align-items: stretch;
+    padding: 20px 18px 0;
+  }
+
+  .step-flow {
+    min-height: calc(100svh - 20px);
+  }
+
+  .step-flow__header h1 {
+    font-size: 30px;
+  }
+
+  .step-flow__footer,
+  .time-row {
+    grid-template-columns: 1fr;
+  }
+
+  .step-flow__footer {
+    display: grid;
+    position: sticky;
+    bottom: 0;
+    margin-inline: -18px;
+    padding: 14px 18px 18px;
+    background:
+      linear-gradient(180deg, rgba(9, 13, 20, 0), var(--bg) 24%),
+      var(--bg);
+  }
+
+  .confirm-dialog__actions {
+    display: grid;
+  }
+
+  .invite-page {
+    align-items: stretch;
+    padding: 24px 18px;
+  }
+
+  .invite-share__header h1 {
+    font-size: 30px;
+  }
+
+  .invite-share__actions {
+    display: grid;
+  }
+}

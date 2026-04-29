@@ -1,9 +1,11 @@
+import { SERVICE_NAME } from '../../../shared/lib/appCopy'
+
 function LandingPage({ onLogin, onSignup }) {
   return (
     <main className="landing">
       <section className="landing__content" aria-labelledby="service-title">
         <p className="landing__eyebrow">약속 일정 도우미</p>
-        <h1 id="service-title">Get Over Here</h1>
+        <h1 id="service-title">{SERVICE_NAME}</h1>
         <p className="landing__description">
           빠르고 직관적인 약속 일정 조율 서비스
         </p>

@@ -1,9 +1,18 @@
 import { useCallback, useEffect, useState } from 'react'
 import DashboardPage from '../features/dashboard/pages/DashboardPage'
 import LoginPage from '../features/auth/pages/LoginPage'
+import CreateMeetingPage from '../features/meetings/pages/CreateMeetingPage'
+import InviteSharePage from '../features/meetings/pages/InviteSharePage'
 import SignupPage from '../features/auth/pages/SignupPage'
 import LandingPage from '../features/landing/pages/LandingPage'
-import { ROUTES, getRedirectPath, normalizeRoute } from '../routes/paths'
+import {
+  ROUTES,
+  getMeetingInviteId,
+  getMeetingInvitePath,
+  getRedirectPath,
+  isProtectedRoute,
+  normalizeRoute,
+} from '../routes/paths'
 import { useAuthStore } from '../stores/authStore'
 import { useFirebaseAuth } from './useFirebaseAuth'
 
@@ -21,6 +30,7 @@ function App() {
 
     return normalizeRoute(redirectPath)
   })
+  const [routeState, setRouteState] = useState(() => window.history.state ?? {})
 
   useEffect(() => {
     function syncRouteWithLocation() {
@@ -31,6 +41,7 @@ function App() {
       }
 
       setRoute(normalizeRoute(redirectPath))
+      setRouteState(window.history.state ?? {})
     }
 
     window.addEventListener('popstate', syncRouteWithLocation)
@@ -38,10 +49,11 @@ function App() {
     return () => window.removeEventListener('popstate', syncRouteWithLocation)
   }, [])
 
-  const navigate = useCallback((nextRoute) => {
+  const navigate = useCallback((nextRoute, state = {}) => {
     const normalizedRoute = normalizeRoute(nextRoute)
-    window.history.pushState({}, '', normalizedRoute)
+    window.history.pushState(state, '', normalizedRoute)
     setRoute(normalizedRoute)
+    setRouteState(state)
   }, [])
 
   useEffect(() => {
@@ -49,7 +61,7 @@ function App() {
       return
     }
 
-    if (route === ROUTES.dashboard && !user) {
+    if (isProtectedRoute(route) && !user) {
       queueMicrotask(() => navigate(ROUTES.login))
       return
     }
@@ -67,7 +79,7 @@ function App() {
     )
   }
 
-  if (route === ROUTES.dashboard && !user) {
+  if (isProtectedRoute(route) && !user) {
     return null
   }
 
@@ -76,7 +88,33 @@ function App() {
   }
 
   if (route === ROUTES.dashboard) {
-    return <DashboardPage onLogout={() => navigate(ROUTES.landing)} />
+    return (
+      <DashboardPage
+        onCreateMeeting={() => navigate(ROUTES.meetingNew)}
+        onLogout={() => navigate(ROUTES.landing)}
+      />
+    )
+  }
+
+  if (route === ROUTES.meetingNew) {
+    return (
+      <CreateMeetingPage
+        onCancel={() => navigate(ROUTES.dashboard)}
+        onSuccess={(meeting) => {
+          navigate(getMeetingInvitePath(meeting.id), { meetingTitle: meeting.title })
+        }}
+      />
+    )
+  }
+
+  if (getMeetingInviteId(route)) {
+    return (
+      <InviteSharePage
+        meetingId={getMeetingInviteId(route)}
+        meetingTitle={routeState.meetingTitle}
+        onDashboard={() => navigate(ROUTES.dashboard)}
+      />
+    )
   }
 
   if (route === ROUTES.signup) {

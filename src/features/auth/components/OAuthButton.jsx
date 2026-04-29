@@ -1,3 +1,5 @@
+import { AUTH_COPY } from '../../../shared/lib/appCopy'
+
 function OAuthButton({ disabled, onClick }) {
   return (
     <button
@@ -6,7 +8,7 @@ function OAuthButton({ disabled, onClick }) {
       onClick={onClick}
       disabled={disabled}
     >
-      Google로 계속하기
+      {AUTH_COPY.googleContinue}
     </button>
   )
 }

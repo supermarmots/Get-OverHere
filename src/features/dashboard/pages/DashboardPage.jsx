@@ -1,28 +1,24 @@
 import { useState } from 'react'
 import { useAuthStore } from '../../../stores/authStore'
+import { DEFAULT_USER_NAME, DASHBOARD_COPY, SERVICE_NAME } from '../../../shared/lib/appCopy'
+import { meetingSections } from '../lib/meetingSections'
 
-const meetingSections = [
-  {
-    id: 'hosting',
-    title: '주최 중',
-    description: '내가 만든 약속 방이 여기에 표시됩니다.',
-  },
-  {
-    id: 'participating',
-    title: '참여 중',
-    description: '투표해야 하거나 참여한 약속이 여기에 표시됩니다.',
-  },
-  {
-    id: 'confirmed',
-    title: '확정됨',
-    description: '최종 일정이 정해진 약속이 여기에 표시됩니다.',
-  },
-]
+function getDisplayName(user) {
+  if (user?.displayName) {
+    return user.displayName
+  }
 
-function DashboardPage({ onLogout }) {
+  if (user?.email) {
+    return user.email.split('@')[0]
+  }
+
+  return DEFAULT_USER_NAME
+}
+
+function DashboardPage({ onCreateMeeting, onLogout }) {
   const [status, setStatus] = useState('')
   const user = useAuthStore((state) => state.user)
-  const nickname = user?.displayName || user?.email?.split('@')[0] || '사용자'
+  const nickname = getDisplayName(user)
 
   async function handleLogout() {
     setStatus('')
@@ -32,31 +28,34 @@ function DashboardPage({ onLogout }) {
       await logout()
       onLogout()
     } catch {
-      setStatus('로그아웃 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.')
+      setStatus(DASHBOARD_COPY.logoutError)
     }
   }
 
   return (
     <main className="dashboard">
       <header className="dashboard__header">
-        <p className="landing__eyebrow">Get Over Here</p>
-        <h1>{nickname}님, 약속을 조율해 볼까요?</h1>
+        <p className="landing__eyebrow">{SERVICE_NAME}</p>
+        <h1>
+          {nickname}
+          {DASHBOARD_COPY.greetingSuffix}
+        </h1>
         <nav className="dashboard__nav" aria-label="사용자 메뉴">
           <button type="button" className="text-button">
-            프로필
+            {DASHBOARD_COPY.profile}
           </button>
           <button type="button" className="text-button" onClick={handleLogout}>
-            로그아웃
+            {DASHBOARD_COPY.logout}
           </button>
         </nav>
       </header>
 
       <section className="dashboard__actions" aria-label="주요 작업">
-        <button type="button" className="landing__login">
-          약속 만들기
+        <button type="button" className="landing__login" onClick={onCreateMeeting}>
+          {DASHBOARD_COPY.createMeeting}
         </button>
         <button type="button" className="landing__signup">
-          초대 링크로 참여
+          {DASHBOARD_COPY.joinWithInvite}
         </button>
       </section>
 
@@ -64,8 +63,8 @@ function DashboardPage({ onLogout }) {
 
       <section className="dashboard__meetings" aria-labelledby="meetings-title">
         <header className="dashboard__section-header">
-          <h2 id="meetings-title">내 약속</h2>
-          <p>약속 목록은 Firestore 연결 후 실시간으로 표시됩니다.</p>
+          <h2 id="meetings-title">{DASHBOARD_COPY.meetingsTitle}</h2>
+          <p>{DASHBOARD_COPY.emptyRealtimeNotice}</p>
         </header>
 
         {meetingSections.map((section) => (

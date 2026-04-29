@@ -5,6 +5,7 @@ import { getAuthErrorMessage } from '../lib/authErrors'
 import { initialLoginForm, validateLoginForm } from '../lib/loginValidation'
 import { mapAuthUser } from '../lib/mapAuthUser'
 import { useAuthStore } from '../../../stores/authStore'
+import { SERVICE_NAME } from '../../../shared/lib/appCopy'
 
 function LoginPage({ onBack, onSignup, onSuccess }) {
   const setAuthUser = useAuthStore((state) => state.setAuthUser)
@@ -72,7 +73,7 @@ function LoginPage({ onBack, onSignup, onSuccess }) {
     <main className="auth-page">
       <section className="auth-panel" aria-labelledby="login-title">
         <button type="button" className="text-button" onClick={onBack}>
-          Get Over Here
+          {SERVICE_NAME}
         </button>
         <header className="auth-panel__header">
           <p className="landing__eyebrow">다시 시작하기</p>
