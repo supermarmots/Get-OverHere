@@ -2,11 +2,17 @@ import { useCallback, useEffect, useState } from 'react'
 import DashboardPage from '../features/dashboard/pages/DashboardPage'
 import LoginPage from '../features/auth/pages/LoginPage'
 import CreateMeetingPage from '../features/meetings/pages/CreateMeetingPage'
+import EditMeetingPage from '../features/meetings/pages/EditMeetingPage'
 import InviteSharePage from '../features/meetings/pages/InviteSharePage'
+import MeetingDetailPage from '../features/meetings/pages/MeetingDetailPage'
 import SignupPage from '../features/auth/pages/SignupPage'
 import LandingPage from '../features/landing/pages/LandingPage'
 import {
   ROUTES,
+  getMeetingDetailId,
+  getMeetingDetailPath,
+  getMeetingEditId,
+  getMeetingEditPath,
   getMeetingInviteId,
   getMeetingInvitePath,
   getRedirectPath,
@@ -92,6 +98,7 @@ function App() {
       <DashboardPage
         onCreateMeeting={() => navigate(ROUTES.meetingNew)}
         onLogout={() => navigate(ROUTES.landing)}
+        onOpenMeeting={(meetingId) => navigate(getMeetingDetailPath(meetingId))}
       />
     )
   }
@@ -103,6 +110,28 @@ function App() {
         onSuccess={(meeting) => {
           navigate(getMeetingInvitePath(meeting.id), { meetingTitle: meeting.title })
         }}
+      />
+    )
+  }
+
+  if (getMeetingEditId(route)) {
+    const meetingId = getMeetingEditId(route)
+
+    return (
+      <EditMeetingPage
+        meetingId={meetingId}
+        onCancel={() => navigate(getMeetingDetailPath(meetingId))}
+        onSaved={(savedMeetingId) => navigate(getMeetingDetailPath(savedMeetingId))}
+      />
+    )
+  }
+
+  if (getMeetingDetailId(route)) {
+    return (
+      <MeetingDetailPage
+        meetingId={getMeetingDetailId(route)}
+        onDashboard={() => navigate(ROUTES.dashboard)}
+        onEdit={(meetingId) => navigate(getMeetingEditPath(meetingId))}
       />
     )
   }

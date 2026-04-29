@@ -32,6 +32,15 @@ export const initialMeetingForm = {
   availability: [],
 }
 
+export function createMeetingFormFromMeeting(meeting) {
+  return {
+    title: meeting.title ?? '',
+    description: meeting.description ?? '',
+    targetMonth: meeting.targetMonth ?? '',
+    availability: meeting.participant?.availability ?? [],
+  }
+}
+
 export function createEmptyAvailability(date = '') {
   return {
     id: crypto.randomUUID(),

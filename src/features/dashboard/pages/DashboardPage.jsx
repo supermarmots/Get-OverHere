@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuthStore } from '../../../stores/authStore'
 import { DEFAULT_USER_NAME, DASHBOARD_COPY, SERVICE_NAME } from '../../../shared/lib/appCopy'
+import MeetingListSection from '../components/MeetingListSection'
+import { getDashboardErrorMessage } from '../lib/dashboardErrors'
 import { meetingSections } from '../lib/meetingSections'
 
 function getDisplayName(user) {
@@ -15,10 +17,53 @@ function getDisplayName(user) {
   return DEFAULT_USER_NAME
 }
 
-function DashboardPage({ onCreateMeeting, onLogout }) {
+function DashboardPage({ onCreateMeeting, onLogout, onOpenMeeting }) {
   const [status, setStatus] = useState('')
+  const [hostedMeetings, setHostedMeetings] = useState([])
+  const [listError, setListError] = useState('')
   const user = useAuthStore((state) => state.user)
   const nickname = getDisplayName(user)
+
+  useEffect(() => {
+    if (!user?.uid) {
+      return undefined
+    }
+
+    let unsubscribe = () => {}
+    let isMounted = true
+
+    async function subscribe() {
+      try {
+        const { subscribeHostedMeetings } = await import('../services/dashboardService')
+
+        unsubscribe = subscribeHostedMeetings(
+          user.uid,
+          (meetings) => {
+            if (isMounted) {
+              setHostedMeetings(meetings)
+              setListError('')
+            }
+          },
+          (error) => {
+            if (isMounted) {
+              setListError(getDashboardErrorMessage(error))
+            }
+          },
+        )
+      } catch (error) {
+        if (isMounted) {
+          setListError(getDashboardErrorMessage(error))
+        }
+      }
+    }
+
+    subscribe()
+
+    return () => {
+      isMounted = false
+      unsubscribe()
+    }
+  }, [user?.uid])
 
   async function handleLogout() {
     setStatus('')
@@ -60,6 +105,7 @@ function DashboardPage({ onCreateMeeting, onLogout }) {
       </section>
 
       {status && <p className="form-status form-status--error">{status}</p>}
+      {listError && <p className="form-status form-status--error">{listError}</p>}
 
       <section className="dashboard__meetings" aria-labelledby="meetings-title">
         <header className="dashboard__section-header">
@@ -67,19 +113,20 @@ function DashboardPage({ onCreateMeeting, onLogout }) {
           <p>{DASHBOARD_COPY.emptyRealtimeNotice}</p>
         </header>
 
-        {meetingSections.map((section) => (
-          <section
-            className="meeting-list"
-            key={section.id}
-            aria-labelledby={`${section.id}-title`}
-          >
-            <header className="meeting-list__header">
-              <h3 id={`${section.id}-title`}>{section.title}</h3>
-              <span>0개</span>
-            </header>
-            <p className="meeting-list__empty">{section.description}</p>
-          </section>
-        ))}
+        <MeetingListSection
+          description={meetingSections.hosting.description}
+          meetings={hostedMeetings}
+          onOpenMeeting={onOpenMeeting}
+          title={meetingSections.hosting.title}
+        />
+        <MeetingListSection
+          description={meetingSections.participating.description}
+          title={meetingSections.participating.title}
+        />
+        <MeetingListSection
+          description={meetingSections.confirmed.description}
+          title={meetingSections.confirmed.title}
+        />
       </section>
     </main>
   )

@@ -7,6 +7,8 @@ export const ROUTES = {
 }
 
 const routeValues = Object.values(ROUTES)
+const meetingDetailPattern = /^\/meetings\/([^/]+)$/
+const meetingEditPattern = /^\/meetings\/([^/]+)\/edit$/
 const meetingInvitePattern = /^\/meetings\/([^/]+)\/invite$/
 
 export function normalizeRoute(pathname) {
@@ -14,7 +16,10 @@ export function normalizeRoute(pathname) {
 }
 
 export function isKnownRoute(pathname) {
-  return routeValues.includes(pathname) || meetingInvitePattern.test(pathname)
+  return routeValues.includes(pathname)
+    || meetingDetailPattern.test(pathname)
+    || meetingEditPattern.test(pathname)
+    || meetingInvitePattern.test(pathname)
 }
 
 export function getRedirectPath(pathname) {
@@ -22,13 +27,23 @@ export function getRedirectPath(pathname) {
 }
 
 export function getMeetingInviteId(pathname) {
-  const match = pathname.match(meetingInvitePattern)
+  return getPatternId(pathname, meetingInvitePattern)
+}
 
-  if (!match) {
-    return ''
-  }
+export function getMeetingDetailId(pathname) {
+  return getPatternId(pathname, meetingDetailPattern)
+}
 
-  return match[1]
+export function getMeetingEditId(pathname) {
+  return getPatternId(pathname, meetingEditPattern)
+}
+
+export function getMeetingDetailPath(meetingId) {
+  return `/meetings/${meetingId}`
+}
+
+export function getMeetingEditPath(meetingId) {
+  return `/meetings/${meetingId}/edit`
 }
 
 export function getMeetingInvitePath(meetingId) {
@@ -42,5 +57,17 @@ export function getMeetingJoinUrl(meetingId, origin = window.location.origin) {
 export function isProtectedRoute(pathname) {
   return pathname === ROUTES.dashboard
     || pathname === ROUTES.meetingNew
+    || meetingDetailPattern.test(pathname)
+    || meetingEditPattern.test(pathname)
     || meetingInvitePattern.test(pathname)
+}
+
+function getPatternId(pathname, pattern) {
+  const match = pathname.match(pattern)
+
+  if (!match) {
+    return ''
+  }
+
+  return match[1]
 }

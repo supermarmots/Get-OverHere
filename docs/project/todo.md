@@ -79,6 +79,20 @@
 - [x] Add dashboard return action.
 - [x] Run `npm run lint`.
 - [x] Run `npm run build`.
+- [x] Subscribe dashboard `주최 중` list to Firestore meetings where `hostId == uid`.
+- [x] Render hosted meetings in dashboard list.
+- [x] Keep `참여 중` and `확정됨` as placeholders.
+- [x] Run `npm run lint`.
+- [x] Run `npm run build`.
+- [x] Render dashboard meetings as card UI.
+- [x] Run `npm run lint`.
+- [x] Run `npm run build`.
+- [x] Review `docs/product/meeting-management.md` before implementing meeting READ/UPDATE/DELETE.
+- [x] Add meeting detail route and page.
+- [x] Add meeting edit route and page.
+- [x] Add Firestore meeting read, update, and soft delete services.
+- [x] Connect dashboard cards to meeting detail without a separate `보기` button.
+- [x] Keep meeting card status opposite the title.
 - [x] Make meeting creation writes atomic with Firestore batch.
 - [x] Add meeting creation error messages for missing auth/config and permission errors.
 - [ ] Deploy Firestore rules after Firebase CLI login.
