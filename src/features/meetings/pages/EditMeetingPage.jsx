@@ -120,7 +120,7 @@ function EditMeetingPage({ meetingId, onCancel, onSaved }) {
         </label>
 
         <label className="step-field">
-          조율 월
+          희망 날짜(월)
           <input type="month" name="targetMonth" value={form.targetMonth} onChange={updateField} />
         </label>
 

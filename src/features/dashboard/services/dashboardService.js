@@ -1,5 +1,6 @@
-import { collection, doc, getDoc, onSnapshot, query, where } from 'firebase/firestore'
+import { collection, onSnapshot, query, where } from 'firebase/firestore'
 import { db, firebaseConfigReady } from '../../../shared/lib/firebase'
+import { MEETING_STATUS } from '../../meetings/lib/meetingStatus'
 
 function assertDashboardReady(userId) {
   if (!firebaseConfigReady || !db) {
@@ -29,7 +30,7 @@ export function subscribeHostedMeetings(userId, onChange, onError) {
       onChange(sortMeetings(
         snapshot.docs
           .map((doc) => ({ id: doc.id, ...doc.data() }))
-          .filter((meeting) => meeting.status !== 'deleted'),
+          .filter((meeting) => meeting.status !== MEETING_STATUS.deleted),
       ))
     },
     onError,
@@ -40,33 +41,19 @@ export function subscribeParticipatingMeetings(userId, onChange, onError) {
   assertDashboardReady(userId)
 
   return onSnapshot(
-    collection(db, 'meetings'),
-    async (snapshot) => {
-      try {
-        const visibleMeetings = snapshot.docs
+    query(
+      collection(db, 'meetings'),
+      where('participantIds', 'array-contains', userId),
+    ),
+    (snapshot) => {
+      onChange(sortMeetings(
+        snapshot.docs
           .map((meetingDoc) => ({ id: meetingDoc.id, ...meetingDoc.data() }))
           .filter((meeting) => {
-            return meeting.status !== 'deleted'
+            return meeting.status !== MEETING_STATUS.deleted
               && meeting.hostId !== userId
-          })
-
-        const meetings = await Promise.all(visibleMeetings.map(async (meeting) => {
-          const participantSnapshot = await getDoc(doc(db, 'meetings', meeting.id, 'participants', userId))
-
-          if (!participantSnapshot.exists()) {
-            return null
-          }
-
-          return {
-            ...meeting,
-            participant: participantSnapshot.data(),
-          }
-        }))
-
-        onChange(sortMeetings(meetings.filter(Boolean)))
-      } catch (error) {
-        onError(error)
-      }
+          }),
+      ))
     },
     onError,
   )

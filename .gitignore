@@ -24,6 +24,9 @@ node_modules/
 
 # Firebase
 .firebase/
+*service-account*.json
+*firebase-admin*.json
+*firebase-adminsdk*.json
 
 # Environment files
 .env

@@ -120,4 +120,17 @@
 - [x] Keep participant documents under `meetings/{meetingId}/participants/{uid}` without duplicating `meetingId`.
 - [x] Read participating meetings through direct participant path checks instead of collection group query.
 - [x] Create refactor roadmap at `docs/refactor/refactor-roadmap.md`.
+- [x] Add `participantIds` write path for meeting creation and participation.
+- [x] Add one-time `participantIds` backfill script.
+- [x] Switch dashboard participating query to `array-contains`.
+- [x] Centralize meeting status constants.
+- [x] Remove completed one-time backfill script and Admin SDK dependency.
+- [x] Remove unused participant collection group rule.
+- [x] Remove unused `getMeetingParticipants` service.
+- [x] Rename `조율 월` UI copy to `희망 날짜(월)`.
+- [x] Update dashboard greeting copy.
+- [x] Add participant cancellation flow.
+- [x] Add participant edit navigation from meeting detail to join flow.
+- [x] Run `npm run lint`.
+- [x] Run `npm run build`.
 - [ ] Deploy Firestore rules after Firebase CLI login.

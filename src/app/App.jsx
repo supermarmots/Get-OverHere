@@ -17,6 +17,7 @@ import {
   getMeetingInviteId,
   getMeetingInvitePath,
   getMeetingJoinId,
+  getMeetingJoinPath,
   getRedirectPath,
   isProtectedRoute,
   normalizeRoute,
@@ -135,6 +136,7 @@ function App() {
         meetingId={getMeetingDetailId(route)}
         onDashboard={() => navigate(ROUTES.dashboard)}
         onEdit={(meetingId) => navigate(getMeetingEditPath(meetingId))}
+        onJoin={(meetingId) => navigate(getMeetingJoinPath(meetingId))}
       />
     )
   }

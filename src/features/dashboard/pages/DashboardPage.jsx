@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { getMeetingJoinPathFromInput } from '../../../routes/paths'
 import { useAuthStore } from '../../../stores/authStore'
-import { DEFAULT_USER_NAME, DASHBOARD_COPY, SERVICE_NAME } from '../../../shared/lib/appCopy'
+import { DEFAULT_USER_NAME, DASHBOARD_COPY } from '../../../shared/lib/appCopy'
+import { MEETING_STATUS } from '../../meetings/lib/meetingStatus'
 import MeetingListSection from '../components/MeetingListSection'
 import { getDashboardErrorMessage } from '../lib/dashboardErrors'
 import { meetingSections } from '../lib/meetingSections'
@@ -28,11 +29,11 @@ function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeet
   const [listError, setListError] = useState('')
   const user = useAuthStore((state) => state.user)
   const nickname = getDisplayName(user)
-  const activeHostedMeetings = hostedMeetings.filter((meeting) => meeting.status !== 'confirmed')
-  const activeParticipatingMeetings = participatingMeetings.filter((meeting) => meeting.status !== 'confirmed')
+  const activeHostedMeetings = hostedMeetings.filter((meeting) => meeting.status !== MEETING_STATUS.confirmed)
+  const activeParticipatingMeetings = participatingMeetings.filter((meeting) => meeting.status !== MEETING_STATUS.confirmed)
   const confirmedMeetings = getUniqueMeetings([
-    ...hostedMeetings.filter((meeting) => meeting.status === 'confirmed'),
-    ...participatingMeetings.filter((meeting) => meeting.status === 'confirmed'),
+    ...hostedMeetings.filter((meeting) => meeting.status === MEETING_STATUS.confirmed),
+    ...participatingMeetings.filter((meeting) => meeting.status === MEETING_STATUS.confirmed),
   ])
 
   useEffect(() => {
@@ -109,7 +110,7 @@ function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeet
 
     try {
       const { updateMeetingStatus } = await import('../../meetings/services/meetingService')
-      await updateMeetingStatus({ meetingId: meeting.id, status: 'collecting' })
+      await updateMeetingStatus({ meetingId: meeting.id, status: MEETING_STATUS.collecting })
     } catch {
       setStatus('약속을 다시 진행하는 중 문제가 발생했습니다.')
     }
@@ -146,7 +147,6 @@ function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeet
   return (
     <main className="dashboard">
       <header className="dashboard__header">
-        {/* <p className="landing__eyebrow">{SERVICE_NAME}</p> */}
         <h1>
           {nickname}
           {DASHBOARD_COPY.greetingSuffix}

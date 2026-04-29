@@ -107,7 +107,7 @@ export function validateMeetingStep(stepId, form) {
   }
 
   if (stepId === 'targetMonth' && !form.targetMonth) {
-    errors.targetMonth = '조율할 월을 선택해 주세요.'
+    errors.targetMonth = '희망 날짜(월)를 선택해 주세요.'
   }
 
   if (stepId === 'dates' && form.availability.length === 0) {

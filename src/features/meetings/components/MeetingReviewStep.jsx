@@ -12,7 +12,7 @@ function MeetingReviewStep({ form }) {
         <span>{form.description || '입력하지 않음'}</span>
       </p>
       <p>
-        <strong>조율 월</strong>
+        <strong>희망 날짜(월)</strong>
         <span>{form.targetMonth}</span>
       </p>
       <section className="meeting-review__slots" aria-label="가능 일정">

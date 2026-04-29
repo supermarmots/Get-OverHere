@@ -22,7 +22,7 @@ function MeetingCard({ actionLabel, canUseAction, meeting, onAction, onOpen }) {
       </header>
       <dl className="meeting-card__meta">
         <div>
-          <dt>조율 월</dt>
+          <dt>희망 날짜(월)</dt>
           <dd>{meeting.targetMonth}</dd>
         </div>
         <div>

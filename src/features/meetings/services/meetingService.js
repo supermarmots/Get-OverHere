@@ -1,8 +1,9 @@
 import {
+  arrayRemove,
+  arrayUnion,
   collection,
   doc,
   getDoc,
-  getDocs,
   increment,
   onSnapshot,
   serverTimestamp,
@@ -10,6 +11,7 @@ import {
   writeBatch,
 } from 'firebase/firestore'
 import { db, firebaseConfigReady } from '../../../shared/lib/firebase'
+import { MEETING_STATUS } from '../lib/meetingStatus'
 
 function assertFirestoreReady() {
   if (!firebaseConfigReady || !db) {
@@ -36,8 +38,9 @@ export async function createMeeting({ form, host }) {
     description: form.description.trim(),
     hostId: host.uid,
     participantCount: 1,
+    participantIds: [host.uid],
     recommendation: null,
-    status: 'collecting',
+    status: MEETING_STATUS.collecting,
     targetMonth: form.targetMonth,
     title: form.title.trim(),
     createdAt: now,
@@ -79,7 +82,7 @@ export async function getMeeting({ meetingId, userId }) {
     })
   }
 
-  if (meetingSnapshot.data().status === 'deleted') {
+  if (meetingSnapshot.data().status === MEETING_STATUS.deleted) {
     throw Object.assign(new Error('Meeting has been deleted.'), {
       code: 'app/not-found',
     })
@@ -98,7 +101,7 @@ export async function getMeetingJoinData({ meetingId, userId }) {
   const meetingRef = doc(db, 'meetings', meetingId)
   const meetingSnapshot = await getDoc(meetingRef)
 
-  if (!meetingSnapshot.exists() || meetingSnapshot.data().status === 'deleted') {
+  if (!meetingSnapshot.exists() || meetingSnapshot.data().status === MEETING_STATUS.deleted) {
     throw Object.assign(new Error('Meeting not found.'), {
       code: 'app/not-found',
     })
@@ -189,25 +192,47 @@ export async function submitMeetingParticipation({ availability, displayName, me
     ...(!participantSnapshot.exists() && { createdAt: now }),
   }, { merge: true })
 
-  if (!participantSnapshot.exists()) {
-    batch.update(doc(db, 'meetings', meetingId), {
-      participantCount: increment(1),
-      updatedAt: now,
-    })
-  }
+  batch.update(doc(db, 'meetings', meetingId), {
+    participantIds: arrayUnion(user.uid),
+    updatedAt: now,
+    ...(!participantSnapshot.exists() && { participantCount: increment(1) }),
+  })
 
   await batch.commit()
 }
 
-export async function getMeetingParticipants({ meetingId }) {
+export async function cancelMeetingParticipation({ meetingId, user }) {
   assertFirestoreReady()
 
-  const participantSnapshots = await getDocs(collection(db, 'meetings', meetingId, 'participants'))
+  if (!user?.uid) {
+    throw Object.assign(new Error('User is missing.'), {
+      code: 'app/missing-user',
+    })
+  }
 
-  return participantSnapshots.docs.map((participantSnapshot) => ({
-    id: participantSnapshot.id,
-    ...participantSnapshot.data(),
-  }))
+  const participantRef = doc(db, 'meetings', meetingId, 'participants', user.uid)
+  const participantSnapshot = await getDoc(participantRef)
+
+  if (!participantSnapshot.exists()) {
+    return
+  }
+
+  if (participantSnapshot.data().role === 'host') {
+    throw Object.assign(new Error('Host participation cannot be canceled.'), {
+      code: 'app/host-cannot-cancel',
+    })
+  }
+
+  const batch = writeBatch(db)
+
+  batch.delete(participantRef)
+  batch.update(doc(db, 'meetings', meetingId), {
+    participantCount: increment(-1),
+    participantIds: arrayRemove(user.uid),
+    updatedAt: serverTimestamp(),
+  })
+
+  await batch.commit()
 }
 
 export function subscribeMeetingParticipants(meetingId, onNext, onError) {
@@ -232,7 +257,7 @@ export async function deleteMeeting({ meetingId }) {
 
   await updateDoc(doc(db, 'meetings', meetingId), {
     deletedAt: serverTimestamp(),
-    status: 'deleted',
+    status: MEETING_STATUS.deleted,
     updatedAt: serverTimestamp(),
   })
 }

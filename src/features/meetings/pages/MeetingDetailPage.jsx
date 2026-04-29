@@ -5,8 +5,9 @@ import { getMeetingStatusLabel } from '../../dashboard/lib/meetingFormat'
 import { getDateWithWeekdayLabel } from '../lib/createMeetingForm'
 import { getMeetingErrorMessage } from '../lib/meetingErrors'
 import { getDateRecommendations } from '../lib/meetingRecommendations'
+import { MEETING_STATUS } from '../lib/meetingStatus'
 
-function MeetingDetailPage({ meetingId, onDashboard, onEdit }) {
+function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
   const user = useAuthStore((state) => state.user)
   const [meeting, setMeeting] = useState(null)
   const [participants, setParticipants] = useState([])
@@ -72,6 +73,16 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit }) {
     }
   }
 
+  async function cancelCurrentParticipation() {
+    try {
+      const { cancelMeetingParticipation } = await import('../services/meetingService')
+      await cancelMeetingParticipation({ meetingId, user })
+      onDashboard()
+    } catch (cancelError) {
+      setError(getMeetingErrorMessage(cancelError))
+    }
+  }
+
   async function copyInviteUrl(inviteUrl) {
     setCopyStatus('')
 
@@ -86,8 +97,8 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit }) {
   async function confirmMeeting() {
     try {
       const { updateMeetingStatus } = await import('../services/meetingService')
-      await updateMeetingStatus({ meetingId, status: 'confirmed' })
-      setMeeting((currentMeeting) => ({ ...currentMeeting, status: 'confirmed' }))
+      await updateMeetingStatus({ meetingId, status: MEETING_STATUS.confirmed })
+      setMeeting((currentMeeting) => ({ ...currentMeeting, status: MEETING_STATUS.confirmed }))
     } catch (confirmError) {
       setError(getMeetingErrorMessage(confirmError))
     }
@@ -111,7 +122,13 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit }) {
 
   const inviteUrl = getMeetingJoinUrl(meeting.id)
   const isHost = meeting.hostId === user.uid
-  const canConfirm = isHost && meeting.status === 'collecting'
+  const canConfirm = isHost && meeting.status === MEETING_STATUS.collecting
+  const confirmTitle = isHost ? '이 약속을 삭제할까요?' : '참여를 취소할까요?'
+  const confirmDescription = isHost
+    ? '삭제하면 대시보드에서 더 이상 보이지 않습니다.'
+    : '참여 취소 후에는 초대 링크로 다시 참여할 수 있습니다.'
+  const confirmActionLabel = isHost ? '약속 삭제' : '참여 취소'
+  const handleConfirmAction = isHost ? deleteCurrentMeeting : cancelCurrentParticipation
 
   return (
     <main className="meeting-detail">
@@ -140,7 +157,7 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit }) {
           <span>{getMeetingStatusLabel(meeting.status)}</span>
         </p>
         <p>
-          <strong>조율 월</strong>
+          <strong>희망 날짜(월)</strong>
           <span>{meeting.targetMonth}</span>
         </p>
         <p>
@@ -208,7 +225,11 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit }) {
       </section>
 
       <footer className="meeting-detail__actions">
-        <button type="button" className="text-button meeting-detail__action" onClick={() => onEdit(meeting.id)}>
+        <button
+          type="button"
+          className="text-button meeting-detail__action"
+          onClick={() => (isHost ? onEdit(meeting.id) : onJoin(meeting.id))}
+        >
           수정
         </button>
         <button
@@ -216,21 +237,21 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit }) {
           className="text-button meeting-detail__action danger-button"
           onClick={() => setShowDeleteConfirm(true)}
         >
-          삭제
+          {confirmActionLabel}
         </button>
       </footer>
 
       {showDeleteConfirm && (
         <dialog className="confirm-dialog" open>
           <section aria-labelledby="delete-title">
-            <h2 id="delete-title">이 약속을 삭제할까요?</h2>
-            <p>삭제하면 대시보드에서 더 이상 보이지 않습니다.</p>
+            <h2 id="delete-title">{confirmTitle}</h2>
+            <p>{confirmDescription}</p>
             <footer className="confirm-dialog__actions">
               <button type="button" className="landing__signup" onClick={() => setShowDeleteConfirm(false)}>
                 취소
               </button>
-              <button type="button" className="text-button danger-button" onClick={deleteCurrentMeeting}>
-                삭제
+              <button type="button" className="text-button danger-button" onClick={handleConfirmAction}>
+                {confirmActionLabel}
               </button>
             </footer>
           </section>
