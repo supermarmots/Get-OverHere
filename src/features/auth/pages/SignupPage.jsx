@@ -4,6 +4,7 @@ import SignupForm from '../components/SignupForm'
 import { getAuthErrorMessage } from '../lib/authErrors'
 import { mapAuthUser } from '../lib/mapAuthUser'
 import { initialSignupForm, validateSignupForm } from '../lib/signupValidation'
+import { continueWithGoogle, signupWithEmail } from '../services/authService'
 import { useAuthStore } from '../../../stores/authStore'
 import { SERVICE_NAME } from '../../../shared/lib/appCopy'
 
@@ -34,7 +35,6 @@ function SignupPage({ onBack, onLogin, onSuccess }) {
     setIsSubmitting(true)
 
     try {
-      const { signupWithEmail } = await import('../services/authService')
       const name = signupForm.name.trim()
       const nickname = signupForm.nickname.trim()
 
@@ -61,7 +61,6 @@ function SignupPage({ onBack, onLogin, onSuccess }) {
     setIsSubmitting(true)
 
     try {
-      const { continueWithGoogle } = await import('../services/authService')
       const user = await continueWithGoogle()
       setAuthUser(mapAuthUser(user))
       setStatus({ type: 'success', message: 'Google 계정으로 가입되었습니다.' })

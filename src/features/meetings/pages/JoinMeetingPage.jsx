@@ -8,6 +8,7 @@ import {
   getTargetMonthLabel,
 } from '../lib/createMeetingForm'
 import { getMeetingErrorMessage } from '../lib/meetingErrors'
+import { getMeetingJoinData, submitMeetingParticipation } from '../services/meetingService'
 
 const joinSteps = [
   {
@@ -42,7 +43,6 @@ function JoinMeetingPage({ meetingId, onDashboard }) {
 
     async function loadMeeting() {
       try {
-        const { getMeetingJoinData } = await import('../services/meetingService')
         const joinData = await getMeetingJoinData({ meetingId, userId: userUid })
 
         if (isMounted) {
@@ -119,7 +119,6 @@ function JoinMeetingPage({ meetingId, onDashboard }) {
     setIsSubmitting(true)
 
     try {
-      const { submitMeetingParticipation } = await import('../services/meetingService')
       await submitMeetingParticipation({
         availability,
         displayName: getUserDisplayName({ displayName: userDisplayName, email: userEmail }),

@@ -9,6 +9,7 @@ import {
   validateMeetingForm,
 } from '../lib/createMeetingForm'
 import { getMeetingErrorMessage } from '../lib/meetingErrors'
+import { getMeeting, updateMeeting } from '../services/meetingService'
 
 function EditMeetingPage({ meetingId, onCancel, onSaved }) {
   const user = useAuthStore((state) => state.user)
@@ -21,7 +22,6 @@ function EditMeetingPage({ meetingId, onCancel, onSaved }) {
 
     async function loadMeeting() {
       try {
-        const { getMeeting } = await import('../services/meetingService')
         const meeting = await getMeeting({ meetingId, userId: user.uid })
 
         if (isMounted) {
@@ -89,7 +89,6 @@ function EditMeetingPage({ meetingId, onCancel, onSaved }) {
     setIsSubmitting(true)
 
     try {
-      const { updateMeeting } = await import('../services/meetingService')
       await updateMeeting({ form, meetingId, user })
       onSaved(meetingId)
     } catch (saveError) {

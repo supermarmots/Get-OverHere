@@ -4,6 +4,7 @@ import OAuthButton from '../components/OAuthButton'
 import { getAuthErrorMessage } from '../lib/authErrors'
 import { initialLoginForm, validateLoginForm } from '../lib/loginValidation'
 import { mapAuthUser } from '../lib/mapAuthUser'
+import { continueWithGoogle, loginWithEmail } from '../services/authService'
 import { useAuthStore } from '../../../stores/authStore'
 import { SERVICE_NAME } from '../../../shared/lib/appCopy'
 
@@ -34,8 +35,6 @@ function LoginPage({ onBack, onSignup, onSuccess }) {
     setIsSubmitting(true)
 
     try {
-      const { loginWithEmail } = await import('../services/authService')
-
       const user = await loginWithEmail({
         email: loginForm.email.trim(),
         password: loginForm.password,
@@ -57,7 +56,6 @@ function LoginPage({ onBack, onSignup, onSuccess }) {
     setIsSubmitting(true)
 
     try {
-      const { continueWithGoogle } = await import('../services/authService')
       const user = await continueWithGoogle()
       setAuthUser(mapAuthUser(user))
       setStatus({ type: 'success', message: 'Google 계정으로 로그인되었습니다.' })

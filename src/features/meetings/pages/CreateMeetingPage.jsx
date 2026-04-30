@@ -15,6 +15,7 @@ import {
   validateMeetingStep,
 } from '../lib/createMeetingForm'
 import { getMeetingErrorMessage } from '../lib/meetingErrors'
+import { createMeeting } from '../services/meetingService'
 
 function CreateMeetingPage({ onCancel, onSuccess }) {
   const user = useAuthStore((state) => state.user)
@@ -114,7 +115,6 @@ function CreateMeetingPage({ onCancel, onSuccess }) {
     setIsSubmitting(true)
 
     try {
-      const { createMeeting } = await import('../services/meetingService')
       const meetingId = await createMeeting({ form, host: user })
       onSuccess({ id: meetingId, title: form.title.trim() })
     } catch (error) {

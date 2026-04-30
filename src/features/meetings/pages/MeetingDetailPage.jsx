@@ -6,6 +6,13 @@ import { getDateWithWeekdayLabel } from '../lib/createMeetingForm'
 import { getMeetingErrorMessage } from '../lib/meetingErrors'
 import { getDateRecommendations } from '../lib/meetingRecommendations'
 import { MEETING_STATUS } from '../lib/meetingStatus'
+import {
+  cancelMeetingParticipation,
+  deleteMeeting,
+  getMeeting,
+  subscribeMeetingParticipants,
+  updateMeetingStatus,
+} from '../services/meetingService'
 
 function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
   const user = useAuthStore((state) => state.user)
@@ -23,7 +30,6 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
 
     async function loadMeeting() {
       try {
-        const { getMeeting, subscribeMeetingParticipants } = await import('../services/meetingService')
         const loadedMeeting = await getMeeting({ meetingId, userId: user.uid })
 
         if (isMounted) {
@@ -65,7 +71,6 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
 
   async function deleteCurrentMeeting() {
     try {
-      const { deleteMeeting } = await import('../services/meetingService')
       await deleteMeeting({ meetingId })
       onDashboard()
     } catch (deleteError) {
@@ -75,7 +80,6 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
 
   async function cancelCurrentParticipation() {
     try {
-      const { cancelMeetingParticipation } = await import('../services/meetingService')
       await cancelMeetingParticipation({ meetingId, user })
       onDashboard()
     } catch (cancelError) {
@@ -96,7 +100,6 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
 
   async function confirmMeeting() {
     try {
-      const { updateMeetingStatus } = await import('../services/meetingService')
       await updateMeetingStatus({ meetingId, status: MEETING_STATUS.confirmed })
       setMeeting((currentMeeting) => ({ ...currentMeeting, status: MEETING_STATUS.confirmed }))
     } catch (confirmError) {

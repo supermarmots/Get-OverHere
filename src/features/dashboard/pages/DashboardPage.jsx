@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react'
 import { getMeetingJoinPathFromInput } from '../../../routes/paths'
 import { useAuthStore } from '../../../stores/authStore'
 import { DEFAULT_USER_NAME, DASHBOARD_COPY } from '../../../shared/lib/appCopy'
+import { logout } from '../../auth/services/authService'
 import { MEETING_STATUS } from '../../meetings/lib/meetingStatus'
+import { updateMeetingStatus } from '../../meetings/services/meetingService'
 import MeetingListSection from '../components/MeetingListSection'
 import { getDashboardErrorMessage } from '../lib/dashboardErrors'
 import { meetingSections } from '../lib/meetingSections'
+import { subscribeHostedMeetings, subscribeParticipatingMeetings } from '../services/dashboardService'
 
 function getDisplayName(user) {
   if (user?.displayName) {
@@ -47,8 +50,6 @@ function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeet
 
     async function subscribe() {
       try {
-        const { subscribeHostedMeetings, subscribeParticipatingMeetings } = await import('../services/dashboardService')
-
         unsubscribeHosted = subscribeHostedMeetings(
           user.uid,
           (meetings) => {
@@ -97,7 +98,6 @@ function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeet
     setStatus('')
 
     try {
-      const { logout } = await import('../../auth/services/authService')
       await logout()
       onLogout()
     } catch {
@@ -109,7 +109,6 @@ function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeet
     setStatus('')
 
     try {
-      const { updateMeetingStatus } = await import('../../meetings/services/meetingService')
       await updateMeetingStatus({ meetingId: meeting.id, status: MEETING_STATUS.collecting })
     } catch {
       setStatus('약속을 다시 진행하는 중 문제가 발생했습니다.')

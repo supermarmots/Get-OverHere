@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { mapAuthUser } from '../features/auth/lib/mapAuthUser'
+import { observeAuthState } from '../features/auth/services/authService'
 import { useAuthStore } from '../stores/authStore'
 
 export function useFirebaseAuth() {
@@ -9,8 +10,6 @@ export function useFirebaseAuth() {
 
     async function subscribe() {
       try {
-        const { observeAuthState } = await import('../features/auth/services/authService')
-
         unsubscribe = observeAuthState((user) => {
           if (!isMounted) {
             return
