@@ -123,8 +123,8 @@ function EditMeetingPage({ meetingId, onCancel, onSaved }) {
 
         {error && <p className="form-status form-status--error">{error}</p>}
 
-        <footer className="meeting-detail__actions">
-          <button type="submit" className="landing__login" disabled={isSubmitting}>
+        <footer className="meeting-detail__actions meeting-edit__actions">
+          <button type="submit" className="landing__login meeting-edit__submit" disabled={isSubmitting}>
             저장
           </button>
         </footer>

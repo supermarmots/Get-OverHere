@@ -199,7 +199,6 @@
 
 .time-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin: 0;
   padding: 16px 0;
@@ -212,6 +211,21 @@
   padding: 0 0 8px;
   color: var(--text-h);
   font-weight: 700;
+}
+
+.time-row__inputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.time-row__reset {
+  justify-self: end;
+}
+
+.time-row__reset:disabled {
+  cursor: not-allowed;
+  opacity: 0.46;
 }
 
 .meeting-review {
@@ -284,7 +298,8 @@
 
 .confirm-dialog__actions {
   display: flex;
-  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
   margin-top: 8px;
 }
 
@@ -590,6 +605,14 @@
   gap: 22px;
 }
 
+.meeting-edit__actions {
+  grid-template-columns: 1fr;
+}
+
+.meeting-edit__submit {
+  width: 100%;
+}
+
 .join-page {
   min-height: 100svh;
   display: grid;
@@ -720,8 +743,7 @@
     font-size: 30px;
   }
 
-  .step-flow__footer,
-  .time-row {
+  .step-flow__footer {
     grid-template-columns: 1fr;
   }
 
@@ -734,10 +756,6 @@
     background:
       linear-gradient(180deg, rgba(9, 13, 20, 0), var(--bg) 24%),
       var(--bg);
-  }
-
-  .confirm-dialog__actions {
-    display: grid;
   }
 
   .invite-page {

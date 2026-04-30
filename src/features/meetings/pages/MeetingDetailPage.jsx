@@ -250,11 +250,11 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
             <h2 id="delete-title">{confirmTitle}</h2>
             <p>{confirmDescription}</p>
             <footer className="confirm-dialog__actions">
-              <button type="button" className="landing__signup" onClick={() => setShowDeleteConfirm(false)}>
-                취소
-              </button>
               <button type="button" className="text-button danger-button" onClick={handleConfirmAction}>
                 {confirmActionLabel}
+              </button>
+              <button type="button" className="text-button" onClick={() => setShowDeleteConfirm(false)}>
+                취소
               </button>
             </footer>
           </section>
