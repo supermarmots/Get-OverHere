@@ -178,45 +178,47 @@ function JoinMeetingPage({ meetingId, onDashboard }) {
           <strong>{meeting.title}</strong>
         </header>
 
-        {currentStep.id === 'dates' && (
-          <fieldset className="step-field">
-            <legend>가능한 날짜</legend>
-            <p>{getTargetMonthLabel(meeting.targetMonth)}</p>
-            <p>표시된 날짜는 주최자가 가능한 날입니다. 같은 월 안에서 다른 날짜도 선택할 수 있습니다.</p>
+        <section className="join-flow__body">
+          {currentStep.id === 'dates' && (
+            <fieldset className="step-field">
+              <legend>가능한 날짜</legend>
+              <p>{getTargetMonthLabel(meeting.targetMonth)}</p>
+              <p>표시된 날짜는 주최자가 가능한 날입니다. 같은 월 안에서 다른 날짜도 선택할 수 있습니다.</p>
 
-            <JoinCalendar
-              calendarItems={calendarItems}
-              hostDates={hostDates}
-              selectedDates={new Set(availability.map((slot) => slot.date))}
-              targetMonth={meeting.targetMonth}
-              onToggleDate={toggleDate}
+              <JoinCalendar
+                calendarItems={calendarItems}
+                hostDates={hostDates}
+                selectedDates={new Set(availability.map((slot) => slot.date))}
+                targetMonth={meeting.targetMonth}
+                onToggleDate={toggleDate}
+              />
+            </fieldset>
+          )}
+
+          {currentStep.id === 'times' && (
+            <MeetingTimesStep
+              form={{ availability }}
+              onChangeSlot={updateSlot}
             />
-          </fieldset>
-        )}
+          )}
 
-        {currentStep.id === 'times' && (
-          <MeetingTimesStep
-            form={{ availability }}
-            onChangeSlot={updateSlot}
-          />
-        )}
-
-        {currentStep.id === 'review' && (
-          <section className="meeting-review" aria-label="제출 내용 확인">
-            <p>
-              <strong>선택한 날짜</strong>
-              <span>{availability.length}개</span>
-            </p>
-            <ul className="step-list">
-              {availability.map((slot) => (
-                <li key={slot.id}>
-                  <span>{getDateWithWeekdayLabel(slot.date)}</span>
-                  <span>{getAvailabilityTimeLabel(slot)}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+          {currentStep.id === 'review' && (
+            <section className="meeting-review" aria-label="제출 내용 확인">
+              <div className="meeting-review__count">
+                <strong>선택한 날짜</strong>
+                <span>{availability.length}개</span>
+              </div>
+              <ul className="step-list">
+                {availability.map((slot) => (
+                  <li key={slot.id}>
+                    <span>{getDateWithWeekdayLabel(slot.date)}</span>
+                    <span>{getAvailabilityTimeLabel(slot)}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </section>
 
         {error && <p className="form-status form-status--error">{error}</p>}
 

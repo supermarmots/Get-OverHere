@@ -248,6 +248,12 @@
   color: var(--text);
 }
 
+.meeting-review__count {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .meeting-review__slots {
   display: grid;
   gap: 12px;
@@ -659,6 +665,12 @@
 
 .join-flow__header strong {
   color: var(--text-h);
+}
+
+.join-flow__body {
+  display: grid;
+  align-content: start;
+  gap: 18px;
 }
 
 .join-date-list {
