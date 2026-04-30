@@ -8,7 +8,7 @@ import { updateMeetingStatus } from '../../meetings/services/meetingService'
 import MeetingListSection from '../components/MeetingListSection'
 import { getDashboardErrorMessage } from '../lib/dashboardErrors'
 import { meetingSections } from '../lib/meetingSections'
-import { subscribeHostedMeetings, subscribeParticipatingMeetings } from '../services/dashboardService'
+import { subscribeUserMeetings } from '../services/dashboardService'
 
 function getDisplayName(user) {
   if (user?.displayName) {
@@ -24,51 +24,38 @@ function getDisplayName(user) {
 
 function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeeting }) {
   const [status, setStatus] = useState('')
-  const [hostedMeetings, setHostedMeetings] = useState([])
-  const [participatingMeetings, setParticipatingMeetings] = useState([])
+  const [meetings, setMeetings] = useState([])
   const [inviteLink, setInviteLink] = useState('')
   const [inviteError, setInviteError] = useState('')
   const [showInviteDialog, setShowInviteDialog] = useState(false)
   const [listError, setListError] = useState('')
   const user = useAuthStore((state) => state.user)
   const nickname = getDisplayName(user)
-  const activeHostedMeetings = hostedMeetings.filter((meeting) => meeting.status !== MEETING_STATUS.confirmed)
-  const activeParticipatingMeetings = participatingMeetings.filter((meeting) => meeting.status !== MEETING_STATUS.confirmed)
-  const confirmedMeetings = getUniqueMeetings([
-    ...hostedMeetings.filter((meeting) => meeting.status === MEETING_STATUS.confirmed),
-    ...participatingMeetings.filter((meeting) => meeting.status === MEETING_STATUS.confirmed),
-  ])
+  const activeHostedMeetings = meetings.filter((meeting) => {
+    return meeting.hostId === user.uid
+      && meeting.status !== MEETING_STATUS.confirmed
+  })
+  const activeParticipatingMeetings = meetings.filter((meeting) => {
+    return meeting.hostId !== user.uid
+      && meeting.status !== MEETING_STATUS.confirmed
+  })
+  const confirmedMeetings = meetings.filter((meeting) => meeting.status === MEETING_STATUS.confirmed)
 
   useEffect(() => {
     if (!user?.uid) {
       return undefined
     }
 
-    let unsubscribeHosted = () => { }
-    let unsubscribeParticipating = () => { }
+    let unsubscribe = () => { }
     let isMounted = true
 
     async function subscribe() {
       try {
-        unsubscribeHosted = subscribeHostedMeetings(
+        unsubscribe = subscribeUserMeetings(
           user.uid,
           (meetings) => {
             if (isMounted) {
-              setHostedMeetings(meetings)
-              setListError('')
-            }
-          },
-          (error) => {
-            if (isMounted) {
-              setListError(getDashboardErrorMessage(error))
-            }
-          },
-        )
-        unsubscribeParticipating = subscribeParticipatingMeetings(
-          user.uid,
-          (meetings) => {
-            if (isMounted) {
-              setParticipatingMeetings(meetings)
+              setMeetings(meetings)
               setListError('')
             }
           },
@@ -89,8 +76,7 @@ function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeet
 
     return () => {
       isMounted = false
-      unsubscribeHosted()
-      unsubscribeParticipating()
+      unsubscribe()
     }
   }, [user?.uid])
 
@@ -226,10 +212,6 @@ function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeet
       )}
     </main>
   )
-}
-
-function getUniqueMeetings(meetings) {
-  return Array.from(new Map(meetings.map((meeting) => [meeting.id, meeting])).values())
 }
 
 export default DashboardPage

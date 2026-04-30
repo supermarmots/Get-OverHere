@@ -16,28 +16,7 @@ function assertDashboardReady(userId) {
   }
 }
 
-export function subscribeHostedMeetings(userId, onChange, onError) {
-  assertDashboardReady(userId)
-
-  const hostedMeetingsQuery = query(
-    collection(db, 'meetings'),
-    where('hostId', '==', userId),
-  )
-
-  return onSnapshot(
-    hostedMeetingsQuery,
-    (snapshot) => {
-      onChange(sortMeetings(
-        snapshot.docs
-          .map((doc) => ({ id: doc.id, ...doc.data() }))
-          .filter((meeting) => meeting.status !== MEETING_STATUS.deleted),
-      ))
-    },
-    onError,
-  )
-}
-
-export function subscribeParticipatingMeetings(userId, onChange, onError) {
+export function subscribeUserMeetings(userId, onChange, onError) {
   assertDashboardReady(userId)
 
   return onSnapshot(
@@ -49,10 +28,7 @@ export function subscribeParticipatingMeetings(userId, onChange, onError) {
       onChange(sortMeetings(
         snapshot.docs
           .map((meetingDoc) => ({ id: meetingDoc.id, ...meetingDoc.data() }))
-          .filter((meeting) => {
-            return meeting.status !== MEETING_STATUS.deleted
-              && meeting.hostId !== userId
-          }),
+          .filter((meeting) => meeting.status !== MEETING_STATUS.deleted),
       ))
     },
     onError,
