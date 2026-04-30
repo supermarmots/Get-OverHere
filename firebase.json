@@ -18,15 +18,5 @@
         "destination": "/index.html"
       }
     ]
-  },
-  "auth": {
-    "providers": {
-      "anonymous": true,
-      "emailPassword": true,
-      "googleSignIn": {
-        "oAuthBrandDisplayName": "Get-OverHere",
-        "supportEmail": "chanwo25@gmail.com"
-      }
-    }
   }
 }

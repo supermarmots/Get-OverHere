@@ -2,10 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { useAuthStore } from '../../../stores/authStore'
 import MeetingTimesStep from '../components/MeetingTimesStep'
 import {
-  createEmptyAvailability,
+  getAvailabilityTimeLabel,
+  getAvailabilityTimeValidationMessage,
   getDateWithWeekdayLabel,
   getMonthCalendar,
   getTargetMonthLabel,
+  toggleAvailabilityDate,
+  updateAvailabilitySlot,
 } from '../lib/createMeetingForm'
 import { getMeetingErrorMessage } from '../lib/meetingErrors'
 import { getMeetingJoinData, submitMeetingParticipation } from '../services/meetingService'
@@ -79,13 +82,7 @@ function JoinMeetingPage({ meetingId, onDashboard }) {
   }
 
   function updateSlot(slotId, field, value) {
-    setAvailability((currentAvailability) => currentAvailability.map((slot) => {
-      if (slot.id !== slotId) {
-        return slot
-      }
-
-      return { ...slot, [field]: value }
-    }))
+    setAvailability((currentAvailability) => updateAvailabilitySlot(currentAvailability, slotId, field, value))
     setError('')
   }
 
@@ -214,7 +211,7 @@ function JoinMeetingPage({ meetingId, onDashboard }) {
               {availability.map((slot) => (
                 <li key={slot.id}>
                   <span>{getDateWithWeekdayLabel(slot.date)}</span>
-                  <span>{getTimeLabel(slot)}</span>
+                  <span>{getAvailabilityTimeLabel(slot)}</span>
                 </li>
               ))}
             </ul>
@@ -284,35 +281,7 @@ function getStepValidationMessage(stepId, availability) {
   }
 
   if (stepId === 'times') {
-    return getTimeValidationMessage(availability)
-  }
-
-  return ''
-}
-
-function getTimeLabel(slot) {
-  if (!slot.startTime && !slot.endTime) {
-    return '시간 미정'
-  }
-
-  return `${slot.startTime} - ${slot.endTime}`
-}
-
-function getTimeValidationMessage(availability) {
-  const hasInvalidTime = availability.some((slot) => {
-    if (!slot.startTime && !slot.endTime) {
-      return false
-    }
-
-    if (!slot.startTime || !slot.endTime) {
-      return true
-    }
-
-    return slot.endTime <= slot.startTime
-  })
-
-  if (hasInvalidTime) {
-    return '시간은 비워두거나 시작/종료를 모두 입력해야 합니다.'
+    return getAvailabilityTimeValidationMessage(availability)
   }
 
   return ''
@@ -327,16 +296,6 @@ function getValidationMessage({ availability }) {
 
 function getUserDisplayName(user) {
   return user.displayName || user.email?.split('@')[0] || '참여자'
-}
-
-function toggleAvailabilityDate(availability, date) {
-  const hasDate = availability.some((slot) => slot.date === date)
-
-  if (hasDate) {
-    return availability.filter((slot) => slot.date !== date)
-  }
-
-  return [...availability, createEmptyAvailability(date)]
 }
 
 export default JoinMeetingPage

@@ -3,9 +3,10 @@ import { useAuthStore } from '../../../stores/authStore'
 import MeetingDatesStep from '../components/MeetingDatesStep'
 import MeetingTimesStep from '../components/MeetingTimesStep'
 import {
-  createEmptyAvailability,
   createMeetingFormFromMeeting,
   initialMeetingForm,
+  toggleAvailabilityDate,
+  updateAvailabilitySlot,
   validateMeetingForm,
 } from '../lib/createMeetingForm'
 import { getMeetingErrorMessage } from '../lib/meetingErrors'
@@ -64,13 +65,7 @@ function EditMeetingPage({ meetingId, onCancel, onSaved }) {
   function updateSlot(slotId, field, value) {
     setForm((currentForm) => ({
       ...currentForm,
-      availability: currentForm.availability.map((slot) => {
-        if (slot.id !== slotId) {
-          return slot
-        }
-
-        return { ...slot, [field]: value }
-      }),
+      availability: updateAvailabilitySlot(currentForm.availability, slotId, field, value),
     }))
     setError('')
   }
@@ -136,16 +131,6 @@ function EditMeetingPage({ meetingId, onCancel, onSaved }) {
       </form>
     </main>
   )
-}
-
-function toggleAvailabilityDate(availability, date) {
-  const hasDate = availability.some((slot) => slot.date === date)
-
-  if (hasDate) {
-    return availability.filter((slot) => slot.date !== date)
-  }
-
-  return [...availability, createEmptyAvailability(date)]
 }
 
 export default EditMeetingPage

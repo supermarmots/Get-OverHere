@@ -24,7 +24,6 @@ service cloud.firestore {
     match /{document=**} {
       allow read, write: if false;
     }
-  }
 
   function isSignedIn() {
     return request.auth != null;
@@ -139,5 +138,6 @@ service cloud.firestore {
 
   function meetingAfter(meetingId) {
     return getAfter(/databases/$(database)/documents/meetings/$(meetingId)).data;
+  }
   }
 }

@@ -1,4 +1,4 @@
-import { getDateWithWeekdayLabel } from '../lib/createMeetingForm'
+import { getAvailabilityTimeLabel, getDateWithWeekdayLabel } from '../lib/createMeetingForm'
 
 function MeetingReviewStep({ form }) {
   return (
@@ -21,21 +21,13 @@ function MeetingReviewStep({ form }) {
           {form.availability.map((slot) => (
             <li key={slot.id}>
               <span>{getDateWithWeekdayLabel(slot.date)}</span>
-              <span>{getTimeLabel(slot)}</span>
+              <span>{getAvailabilityTimeLabel(slot)}</span>
             </li>
           ))}
         </ul>
       </section>
     </section>
   )
-}
-
-function getTimeLabel(slot) {
-  if (!slot.startTime && !slot.endTime) {
-    return '시간 미정'
-  }
-
-  return `${slot.startTime} - ${slot.endTime}`
 }
 
 export default MeetingReviewStep

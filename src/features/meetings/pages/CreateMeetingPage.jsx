@@ -8,9 +8,10 @@ import MeetingTimesStep from '../components/MeetingTimesStep'
 import MeetingTitleStep from '../components/MeetingTitleStep'
 import StepLayout from '../components/StepLayout'
 import {
-  createEmptyAvailability,
   createMeetingSteps,
   initialMeetingForm,
+  toggleAvailabilityDate,
+  updateAvailabilitySlot,
   validateMeetingForm,
   validateMeetingStep,
 } from '../lib/createMeetingForm'
@@ -63,13 +64,7 @@ function CreateMeetingPage({ onCancel, onSuccess }) {
   function updateSlot(slotId, field, value) {
     setForm((currentForm) => ({
       ...currentForm,
-      availability: currentForm.availability.map((slot) => {
-        if (slot.id !== slotId) {
-          return slot
-        }
-
-        return { ...slot, [field]: value }
-      }),
+      availability: updateAvailabilitySlot(currentForm.availability, slotId, field, value),
     }))
     setError('')
   }
@@ -179,16 +174,6 @@ function CreateMeetingPage({ onCancel, onSuccess }) {
       </StepLayout>
     </main>
   )
-}
-
-function toggleAvailabilityDate(availability, date) {
-  const hasDate = availability.some((slot) => slot.date === date)
-
-  if (hasDate) {
-    return availability.filter((slot) => slot.date !== date)
-  }
-
-  return [...availability, createEmptyAvailability(date)]
 }
 
 export default CreateMeetingPage

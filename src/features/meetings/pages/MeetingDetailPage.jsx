@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuthStore } from '../../../stores/authStore'
 import { getMeetingJoinUrl } from '../../../routes/paths'
 import { getMeetingStatusLabel } from '../../dashboard/lib/meetingFormat'
-import { getDateWithWeekdayLabel } from '../lib/createMeetingForm'
+import { getAvailabilityTimeLabel, getDateWithWeekdayLabel } from '../lib/createMeetingForm'
 import { getMeetingErrorMessage } from '../lib/meetingErrors'
 import { getDateRecommendations } from '../lib/meetingRecommendations'
 import { MEETING_STATUS } from '../lib/meetingStatus'
@@ -221,7 +221,7 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
           {(meeting.participant?.availability ?? []).map((slot) => (
             <li key={slot.id}>
               <span>{getDateWithWeekdayLabel(slot.date)}</span>
-              <span>{getTimeLabel(slot)}</span>
+              <span>{getAvailabilityTimeLabel(slot)}</span>
             </li>
           ))}
         </ul>
@@ -299,14 +299,6 @@ function BackIcon() {
       <path d="M15.7 5.3a1 1 0 0 1 0 1.4L11.4 11H20a1 1 0 1 1 0 2h-8.6l4.3 4.3a1 1 0 0 1-1.4 1.4l-6-6a1 1 0 0 1 0-1.4l6-6a1 1 0 0 1 1.4 0Z" />
     </svg>
   )
-}
-
-function getTimeLabel(slot) {
-  if (!slot.startTime && !slot.endTime) {
-    return '시간 미정'
-  }
-
-  return `${slot.startTime} - ${slot.endTime}`
 }
 
 export default MeetingDetailPage

@@ -50,6 +50,42 @@ export function createEmptyAvailability(date = '') {
   }
 }
 
+export function toggleAvailabilityDate(availability, date) {
+  const hasDate = availability.some((slot) => slot.date === date)
+
+  if (hasDate) {
+    return availability.filter((slot) => slot.date !== date)
+  }
+
+  return [...availability, createEmptyAvailability(date)]
+}
+
+export function updateAvailabilitySlot(availability, slotId, field, value) {
+  return availability.map((slot) => {
+    if (slot.id !== slotId) {
+      return slot
+    }
+
+    return { ...slot, [field]: value }
+  })
+}
+
+export function getAvailabilityTimeLabel(slot) {
+  if (!slot.startTime && !slot.endTime) {
+    return '시간 미정'
+  }
+
+  return `${slot.startTime} - ${slot.endTime}`
+}
+
+export function getAvailabilityTimeValidationMessage(availability) {
+  if (availability.some(hasInvalidAvailabilityTime)) {
+    return '시간은 비워두거나 시작/종료를 모두 입력해야 합니다.'
+  }
+
+  return ''
+}
+
 export function getMonthDates(targetMonth) {
   if (!targetMonth) {
     return []
@@ -148,15 +184,7 @@ function validateAvailability(form) {
       return true
     }
 
-    if (!slot.startTime && !slot.endTime) {
-      return false
-    }
-
-    if (!slot.startTime || !slot.endTime) {
-      return true
-    }
-
-    return slot.endTime <= slot.startTime
+    return hasInvalidAvailabilityTime(slot)
   })
 
   if (hasInvalidSlot) {
@@ -164,4 +192,16 @@ function validateAvailability(form) {
   }
 
   return ''
+}
+
+function hasInvalidAvailabilityTime(slot) {
+  if (!slot.startTime && !slot.endTime) {
+    return false
+  }
+
+  if (!slot.startTime || !slot.endTime) {
+    return true
+  }
+
+  return slot.endTime <= slot.startTime
 }
