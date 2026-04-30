@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useState } from 'react'
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom'
 import DashboardPage from '../features/dashboard/pages/DashboardPage'
 import LoginPage from '../features/auth/pages/LoginPage'
 import CreateMeetingPage from '../features/meetings/pages/CreateMeetingPage'
@@ -10,17 +18,11 @@ import SignupPage from '../features/auth/pages/SignupPage'
 import LandingPage from '../features/landing/pages/LandingPage'
 import {
   ROUTES,
-  getMeetingDetailId,
   getMeetingDetailPath,
-  getMeetingEditId,
   getMeetingEditPath,
-  getMeetingInviteId,
   getMeetingInvitePath,
-  getMeetingJoinId,
   getMeetingJoinPath,
-  getRedirectPath,
   isProtectedRoute,
-  normalizeRoute,
 } from '../routes/paths'
 import { useAuthStore } from '../stores/authStore'
 import { useFirebaseAuth } from './useFirebaseAuth'
@@ -28,57 +30,17 @@ import { useFirebaseAuth } from './useFirebaseAuth'
 function App() {
   useFirebaseAuth()
 
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  )
+}
+
+function AppRoutes() {
   const isAuthReady = useAuthStore((state) => state.isAuthReady)
   const user = useAuthStore((state) => state.user)
-  const [route, setRoute] = useState(() => {
-    const redirectPath = getRedirectPath(window.location.pathname)
-
-    if (redirectPath !== window.location.pathname) {
-      window.history.replaceState({}, '', redirectPath)
-    }
-
-    return normalizeRoute(redirectPath)
-  })
-  const [routeState, setRouteState] = useState(() => window.history.state ?? {})
-
-  useEffect(() => {
-    function syncRouteWithLocation() {
-      const redirectPath = getRedirectPath(window.location.pathname)
-
-      if (redirectPath !== window.location.pathname) {
-        window.history.replaceState({}, '', redirectPath)
-      }
-
-      setRoute(normalizeRoute(redirectPath))
-      setRouteState(window.history.state ?? {})
-    }
-
-    window.addEventListener('popstate', syncRouteWithLocation)
-
-    return () => window.removeEventListener('popstate', syncRouteWithLocation)
-  }, [])
-
-  const navigate = useCallback((nextRoute, state = {}) => {
-    const normalizedRoute = normalizeRoute(nextRoute)
-    window.history.pushState(state, '', normalizedRoute)
-    setRoute(normalizedRoute)
-    setRouteState(state)
-  }, [])
-
-  useEffect(() => {
-    if (!isAuthReady) {
-      return
-    }
-
-    if (isProtectedRoute(route) && !user) {
-      queueMicrotask(() => navigate(ROUTES.login, { redirectTo: route }))
-      return
-    }
-
-    if ((route === ROUTES.login || route === ROUTES.signup) && user) {
-      queueMicrotask(() => navigate(getPostAuthRedirect(routeState)))
-    }
-  }, [isAuthReady, navigate, route, routeState, user])
+  const location = useLocation()
 
   if (!isAuthReady) {
     return (
@@ -88,102 +50,142 @@ function App() {
     )
   }
 
-  if (isProtectedRoute(route) && !user) {
-    return null
+  if (isProtectedRoute(location.pathname) && !user) {
+    return <Navigate to={ROUTES.login} state={{ redirectTo: location.pathname }} replace />
   }
 
-  if ((route === ROUTES.login || route === ROUTES.signup) && user) {
-    return null
+  if ((location.pathname === ROUTES.login || location.pathname === ROUTES.signup) && user) {
+    return <Navigate to={getPostAuthRedirect(location.state)} replace />
   }
 
-  if (route === ROUTES.dashboard) {
-    return (
-      <DashboardPage
-        onCreateMeeting={() => navigate(ROUTES.meetingNew)}
-        onJoinWithInvite={(joinPath) => navigate(joinPath)}
-        onLogout={() => navigate(ROUTES.landing)}
-        onOpenMeeting={(meetingId) => navigate(getMeetingDetailPath(meetingId))}
-      />
-    )
-  }
+  return (
+    <Routes>
+      <Route path={ROUTES.landing} element={<LandingRoute />} />
+      <Route path={ROUTES.dashboard} element={<DashboardRoute />} />
+      <Route path={ROUTES.meetingNew} element={<CreateMeetingRoute />} />
+      <Route path="/meetings/:meetingId" element={<MeetingDetailRoute />} />
+      <Route path="/meetings/:meetingId/edit" element={<EditMeetingRoute />} />
+      <Route path="/meetings/:meetingId/invite" element={<InviteShareRoute />} />
+      <Route path="/meetings/:meetingId/join" element={<JoinMeetingRoute />} />
+      <Route path={ROUTES.signup} element={<SignupRoute />} />
+      <Route path={ROUTES.login} element={<LoginRoute />} />
+      <Route path="*" element={<Navigate to={ROUTES.landing} replace />} />
+    </Routes>
+  )
+}
 
-  if (route === ROUTES.meetingNew) {
-    return (
-      <CreateMeetingPage
-        onCancel={() => navigate(ROUTES.dashboard)}
-        onSuccess={(meeting) => {
-          navigate(getMeetingInvitePath(meeting.id), { meetingTitle: meeting.title })
-        }}
-      />
-    )
-  }
-
-  if (getMeetingEditId(route)) {
-    const meetingId = getMeetingEditId(route)
-
-    return (
-      <EditMeetingPage
-        meetingId={meetingId}
-        onCancel={() => navigate(getMeetingDetailPath(meetingId))}
-        onSaved={(savedMeetingId) => navigate(getMeetingDetailPath(savedMeetingId))}
-      />
-    )
-  }
-
-  if (getMeetingDetailId(route)) {
-    return (
-      <MeetingDetailPage
-        meetingId={getMeetingDetailId(route)}
-        onDashboard={() => navigate(ROUTES.dashboard)}
-        onEdit={(meetingId) => navigate(getMeetingEditPath(meetingId))}
-        onJoin={(meetingId) => navigate(getMeetingJoinPath(meetingId))}
-      />
-    )
-  }
-
-  if (getMeetingInviteId(route)) {
-    return (
-      <InviteSharePage
-        meetingId={getMeetingInviteId(route)}
-        meetingTitle={routeState.meetingTitle}
-        onDashboard={() => navigate(ROUTES.dashboard)}
-      />
-    )
-  }
-
-  if (getMeetingJoinId(route)) {
-    return (
-      <JoinMeetingPage
-        meetingId={getMeetingJoinId(route)}
-        onDashboard={() => navigate(ROUTES.dashboard)}
-      />
-    )
-  }
-
-  if (route === ROUTES.signup) {
-    return (
-      <SignupPage
-        onBack={() => navigate(ROUTES.landing)}
-        onLogin={() => navigate(ROUTES.login, getAuthRouteState(routeState))}
-        onSuccess={() => navigate(getPostAuthRedirect(routeState))}
-      />
-    )
-  }
-
-  if (route === ROUTES.login) {
-    return (
-      <LoginPage
-        onBack={() => navigate(ROUTES.landing)}
-        onSignup={() => navigate(ROUTES.signup, getAuthRouteState(routeState))}
-        onSuccess={() => navigate(getPostAuthRedirect(routeState))}
-      />
-    )
-  }
+function LandingRoute() {
+  const navigate = useNavigate()
 
   return (
     <LandingPage
       onLogin={() => navigate(ROUTES.login)}
       onSignup={() => navigate(ROUTES.signup)}
+    />
+  )
+}
+
+function DashboardRoute() {
+  const navigate = useNavigate()
+
+  return (
+    <DashboardPage
+      onCreateMeeting={() => navigate(ROUTES.meetingNew)}
+      onJoinWithInvite={(joinPath) => navigate(joinPath)}
+      onLogout={() => navigate(ROUTES.landing)}
+      onOpenMeeting={(meetingId) => navigate(getMeetingDetailPath(meetingId))}
+    />
+  )
+}
+
+function CreateMeetingRoute() {
+  const navigate = useNavigate()
+
+  return (
+    <CreateMeetingPage
+      onCancel={() => navigate(ROUTES.dashboard)}
+      onSuccess={(meeting) => {
+        navigate(getMeetingInvitePath(meeting.id), { state: { meetingTitle: meeting.title } })
+      }}
+    />
+  )
+}
+
+function EditMeetingRoute() {
+  const navigate = useNavigate()
+  const { meetingId } = useParams()
+
+  return (
+    <EditMeetingPage
+      meetingId={meetingId}
+      onCancel={() => navigate(getMeetingDetailPath(meetingId))}
+      onSaved={(savedMeetingId) => navigate(getMeetingDetailPath(savedMeetingId))}
+    />
+  )
+}
+
+function MeetingDetailRoute() {
+  const navigate = useNavigate()
+  const { meetingId } = useParams()
+
+  return (
+    <MeetingDetailPage
+      meetingId={meetingId}
+      onDashboard={() => navigate(ROUTES.dashboard)}
+      onEdit={(meetingId) => navigate(getMeetingEditPath(meetingId))}
+      onJoin={(meetingId) => navigate(getMeetingJoinPath(meetingId))}
+    />
+  )
+}
+
+function InviteShareRoute() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { meetingId } = useParams()
+
+  return (
+    <InviteSharePage
+      meetingId={meetingId}
+      meetingTitle={location.state?.meetingTitle}
+      onDashboard={() => navigate(ROUTES.dashboard)}
+    />
+  )
+}
+
+function JoinMeetingRoute() {
+  const navigate = useNavigate()
+  const { meetingId } = useParams()
+
+  return (
+    <JoinMeetingPage
+      meetingId={meetingId}
+      onDashboard={() => navigate(ROUTES.dashboard)}
+    />
+  )
+}
+
+function SignupRoute() {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  return (
+    <SignupPage
+      onBack={() => navigate(ROUTES.landing)}
+      onLogin={() => navigate(ROUTES.login, { state: getAuthRouteState(location.state) })}
+      onSuccess={() => navigate(getPostAuthRedirect(location.state))}
+    />
+  )
+}
+
+function LoginRoute() {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  return (
+    <LoginPage
+      onBack={() => navigate(ROUTES.landing)}
+      onSignup={() => navigate(ROUTES.signup, { state: getAuthRouteState(location.state) })}
+      onSuccess={() => navigate(getPostAuthRedirect(location.state))}
     />
   )
 }
@@ -199,7 +201,7 @@ function getAuthRouteState(routeState) {
 }
 
 function getPostAuthRedirect(routeState) {
-  if (isProtectedRoute(routeState.redirectTo)) {
+  if (isProtectedRoute(routeState?.redirectTo)) {
     return routeState.redirectTo
   }
 
