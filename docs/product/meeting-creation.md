@@ -103,7 +103,7 @@
   hostId: string,
   targetMonth: 'YYYY-MM',
   status: 'collecting',
-  participantCount: 1,
+  participantIds: [hostUid],
   recommendation: null,
   createdAt: serverTimestamp(),
   updatedAt: serverTimestamp()

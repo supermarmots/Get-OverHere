@@ -52,7 +52,6 @@ service cloud.firestore {
     return changesOnlyParticipantMetadata()
       && existsAfter(/databases/$(database)/documents/meetings/$(meetingId)/participants/$(request.auth.uid))
       && participantIdsIncludesRequester()
-      && countIncreasesByOneIfChanged()
       && onlyAddsRequesterIfParticipantIdsChanged();
   }
 
@@ -60,7 +59,6 @@ service cloud.firestore {
     return changesOnlyParticipantMetadata()
       && exists(/databases/$(database)/documents/meetings/$(meetingId)/participants/$(request.auth.uid))
       && !existsAfter(/databases/$(database)/documents/meetings/$(meetingId)/participants/$(request.auth.uid))
-      && countDecreasesByOne()
       && onlyRemovesRequesterFromParticipantIds();
   }
 
@@ -75,23 +73,11 @@ service cloud.firestore {
   }
 
   function meetingAfterReflectsCanceledParticipant(meetingId, userId) {
-    return !meetingAfter(meetingId).participantIds.hasAny([userId])
-      && meetingAfter(meetingId).participantCount == meetingBefore(meetingId).participantCount - 1;
+    return !meetingAfter(meetingId).participantIds.hasAny([userId]);
   }
 
   function changesOnlyParticipantMetadata() {
-    return changedKeys().hasOnly(['participantCount', 'participantIds', 'updatedAt']);
-  }
-
-  function countIncreasesByOneIfChanged() {
-    return changesField('participantCount')
-      ? request.resource.data.participantCount == resource.data.participantCount + 1
-      : true;
-  }
-
-  function countDecreasesByOne() {
-    return changesField('participantCount')
-      && request.resource.data.participantCount == resource.data.participantCount - 1;
+    return changedKeys().hasOnly(['participantIds', 'updatedAt']);
   }
 
   function onlyAddsRequesterIfParticipantIdsChanged() {
@@ -130,10 +116,6 @@ service cloud.firestore {
 
   function changesField(field) {
     return changedKeys().hasAny([field]);
-  }
-
-  function meetingBefore(meetingId) {
-    return get(/databases/$(database)/documents/meetings/$(meetingId)).data;
   }
 
   function meetingAfter(meetingId) {

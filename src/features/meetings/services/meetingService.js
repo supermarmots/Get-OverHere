@@ -4,7 +4,6 @@ import {
   collection,
   doc,
   getDoc,
-  increment,
   onSnapshot,
   serverTimestamp,
   updateDoc,
@@ -37,7 +36,6 @@ export async function createMeeting({ form, host }) {
   batch.set(meetingRef, {
     description: form.description.trim(),
     hostId: host.uid,
-    participantCount: 1,
     participantIds: [host.uid],
     recommendation: null,
     status: MEETING_STATUS.collecting,
@@ -195,7 +193,6 @@ export async function submitMeetingParticipation({ availability, displayName, me
   batch.update(doc(db, 'meetings', meetingId), {
     participantIds: arrayUnion(user.uid),
     updatedAt: now,
-    ...(!participantSnapshot.exists() && { participantCount: increment(1) }),
   })
 
   await batch.commit()
@@ -227,7 +224,6 @@ export async function cancelMeetingParticipation({ meetingId, user }) {
 
   batch.delete(participantRef)
   batch.update(doc(db, 'meetings', meetingId), {
-    participantCount: increment(-1),
     participantIds: arrayRemove(user.uid),
     updatedAt: serverTimestamp(),
   })

@@ -26,7 +26,7 @@
   - 기존 데이터는 일회성 backfill로 보강 완료
   - 완료된 backfill 스크립트와 Admin SDK 의존성 제거
 - 남은 주의사항:
-  - 새 참여/참여 수정/참여 취소가 parent meeting의 `participantIds`, `participantCount`와 항상 동기화되어야 한다.
+  - 새 참여/참여 수정/참여 취소가 parent meeting의 `participantIds`와 항상 동기화되어야 한다.
 - 검증:
   - 기존 참여 약속이 대시보드에 다시 표시됨
   - `npm run lint`, `npm run build` 통과
@@ -37,7 +37,7 @@
   - `isSignedIn`, `isHost`, `isParticipantDocOwner` 함수 추가
   - meeting create/update 권한을 `isMeetingHostOnCreate`, `canUpdateMeeting`로 분리
   - 참여 생성/수정은 자기 participant 문서와 parent meeting metadata 동기화를 요구
-  - 참여 취소는 자기 participant 문서 삭제, `participantIds` 제거, `participantCount - 1`이 함께 일어날 때만 허용
+  - 참여 취소는 자기 participant 문서 삭제와 `participantIds` 제거가 함께 일어날 때만 허용
   - 완료된 collection group participants 조회 규칙 제거
 - 남은 주의사항:
   - Firestore rules 변경 후에는 `firebase deploy --only firestore:rules`가 필요하다.
