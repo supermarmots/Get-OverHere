@@ -6,8 +6,10 @@
 }
 
 .dashboard__header {
-  display: grid;
-  gap: 12px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
   padding-bottom: 28px;
   border-bottom: 1px solid var(--line);
 }
@@ -18,16 +20,81 @@
   font-size: 44px;
 }
 
-.dashboard__nav {
-  display: flex;
-  gap: 16px;
-  justify-content: flex-end;
+.dashboard__intro {
+  max-width: 640px;
+  margin: 16px 0 0;
+  color: var(--text);
+  font-size: 18px;
+}
+
+.dashboard__logout {
+  flex: 0 0 auto;
+}
+
+.dashboard__summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 26px 0 0;
+}
+
+.dashboard__summary p {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.dashboard__summary strong {
+  color: var(--text-h);
+  font-size: 32px;
+  line-height: 1;
+}
+
+.dashboard__summary span {
+  color: var(--text);
+  font-size: 14px;
 }
 
 .dashboard__actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-  margin: 28px 0 34px;
+  margin: 18px 0 28px;
+}
+
+.dashboard__actions button {
+  min-height: 56px;
+  justify-content: center;
+  text-align: center;
+}
+
+.dashboard__empty-guide {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 28px;
+  padding: 18px;
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+  background: rgba(88, 166, 255, 0.08);
+}
+
+.dashboard__empty-guide h2,
+.dashboard__empty-guide p {
+  margin: 0;
+}
+
+.dashboard__empty-guide h2 {
+  color: var(--text-h);
+  font-size: 20px;
+}
+
+.dashboard__empty-guide p {
+  color: var(--text);
+  font-size: 15px;
 }
 
 .dashboard__meetings {
@@ -179,6 +246,7 @@
   }
 
   .dashboard__header {
+    display: grid;
     padding-bottom: 22px;
   }
 
@@ -186,13 +254,8 @@
     font-size: 32px;
   }
 
-  .dashboard__nav {
-    justify-content: flex-start;
-  }
-
   .dashboard__actions {
-    flex-direction: column;
-    margin: 24px 0 30px;
+    margin: 16px 0 24px;
   }
 
   .meeting-list__header {

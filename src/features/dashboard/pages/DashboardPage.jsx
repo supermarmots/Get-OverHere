@@ -40,6 +40,7 @@ function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeet
       && meeting.status !== MEETING_STATUS.confirmed
   })
   const confirmedMeetings = meetings.filter((meeting) => meeting.status === MEETING_STATUS.confirmed)
+  const activeMeetingCount = activeHostedMeetings.length + activeParticipatingMeetings.length
 
   useEffect(() => {
     if (!user?.uid) {
@@ -132,28 +133,51 @@ function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeet
   return (
     <main className="dashboard">
       <header className="dashboard__header">
-        <h1>
-          {nickname}
-          {DASHBOARD_COPY.greetingSuffix}
-        </h1>
-        <nav className="dashboard__nav" aria-label="사용자 메뉴">
-          <button type="button" className="text-button">
-            {DASHBOARD_COPY.profile}
-          </button>
-          <button type="button" className="text-button" onClick={handleLogout}>
-            {DASHBOARD_COPY.logout}
-          </button>
-        </nav>
+        <div>
+          <p className="landing__eyebrow">오늘의 약속 조율</p>
+          <h1>
+            {nickname}
+            {DASHBOARD_COPY.greetingSuffix}
+          </h1>
+          <p className="dashboard__intro">
+            링크로 가능 시간을 모으고, 겹치는 날짜를 확인한 뒤 확정하세요.
+          </p>
+        </div>
+        <button type="button" className="text-button dashboard__logout" onClick={handleLogout}>
+          {DASHBOARD_COPY.logout}
+        </button>
       </header>
+
+      <section className="dashboard__summary" aria-label="약속 현황">
+        <p>
+          <strong>{activeHostedMeetings.length}</strong>
+          <span>내가 조율 중</span>
+        </p>
+        <p>
+          <strong>{activeParticipatingMeetings.length}</strong>
+          <span>참여 중</span>
+        </p>
+        <p>
+          <strong>{confirmedMeetings.length}</strong>
+          <span>확정 완료</span>
+        </p>
+      </section>
 
       <section className="dashboard__actions" aria-label="주요 작업">
         <button type="button" className="landing__login" onClick={onCreateMeeting}>
-          {DASHBOARD_COPY.createMeeting}
+          새 약속
         </button>
         <button type="button" className="landing__signup" onClick={openInviteDialog}>
-          {DASHBOARD_COPY.joinWithInvite}
+          초대 참여
         </button>
       </section>
+
+      {activeMeetingCount === 0 && confirmedMeetings.length === 0 && (
+        <section className="dashboard__empty-guide" aria-label="시작 안내">
+          <h2>아직 약속이 없습니다</h2>
+          <p>새 약속을 만들거나 받은 초대 링크로 참여하면 이곳에서 진행 상황을 볼 수 있습니다.</p>
+        </section>
+      )}
 
       {status && <p className="form-status form-status--error">{status}</p>}
       {listError && <p className="form-status form-status--error">{listError}</p>}

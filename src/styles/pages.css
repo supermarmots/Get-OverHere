@@ -1,12 +1,14 @@
 .landing {
   min-height: 100svh;
   display: grid;
-  place-items: center;
-  padding: 48px 20px;
+  align-content: center;
+  gap: 34px;
+  padding: 48px 20px 64px;
 }
 
 .landing__content {
-  width: min(100%, 560px);
+  width: min(100%, 760px);
+  margin: 0 auto;
   text-align: center;
 }
 
@@ -19,13 +21,15 @@
 
 .landing h1 {
   margin: 0;
+  font-size: clamp(40px, 5.5vw, 64px);
 }
 
 .landing__description {
-  margin: 18px auto 34px;
+  max-width: 660px;
+  margin: 20px auto 34px;
   color: var(--text);
   font-size: 20px;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 .landing__actions {
@@ -34,9 +38,36 @@
   gap: 12px;
 }
 
-@media (max-width: 640px) {
+.landing__features {
+  width: min(100%, 960px);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 0 auto;
+}
+
+.landing__features article {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(88, 166, 255, 0.12), rgba(20, 28, 43, 0.86));
+}
+
+.landing__features strong {
+  display: block;
+  color: var(--text-h);
+  font-size: 18px;
+}
+
+.landing__features p {
+  margin: 10px 0 0;
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+@media (max-width: 760px) {
   .landing {
-    align-items: center;
     padding: 36px 18px;
   }
 
@@ -45,7 +76,9 @@
     font-size: 17px;
   }
 
-  .landing__actions {
+  .landing__actions,
+  .landing__features {
+    grid-template-columns: 1fr;
     flex-direction: column;
   }
 }
