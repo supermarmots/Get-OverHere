@@ -1,9 +1,12 @@
 # Lessons
 
-- Do not concentrate page UI, form state, validation, and Firebase calls in `App.jsx`. For non-trivial UI, design the directory structure first and keep `App` as composition/navigation glue.
-- Do not let `App.css` become a catch-all stylesheet. Put shared tokens/base rules and feature/page styles under `src/styles`, and account for theme and mobile layout up front.
-- Do not hard-code route names or redirect decisions inside UI components. Keep route paths and normalization rules under `src/routes` even before adopting a router library.
-- Prefer semantic HTML (`main`, `section`, `header`, `nav`, `footer`, `form`, `p`) over generic `div`. Avoid card-style UI wrappers unless the content is genuinely a repeated card or modal.
+- Do not concentrate page UI, form state, validation, and Firebase calls in `App.jsx`. Keep `App` as composition glue.
+- Keep route paths and redirect normalization under `src/routes`; do not hard-code route strings throughout UI components.
+- Thin route adapter files can become unnecessary indirection. If they only pass `navigate` callbacks, keep them in `AppRoutes.jsx` instead.
+- Do not let CSS become a catch-all file. Keep global tokens, auth, landing/page, dashboard, and meeting styles separated by purpose.
+- Prefer semantic HTML (`main`, `section`, `header`, `nav`, `footer`, `form`, `fieldset`, `p`) over generic `div`.
+- Avoid card-style UI wrappers unless the content is genuinely a repeated card, modal, or framed tool.
 - Keep all documentation Markdown under `docs/` except root `README.md` and `AGENTS.md`.
-- Align directory architecture with the actual stack: React/Vite app composition, Firebase services, feature folders, shared infrastructure, routes, styles, and Zustand stores.
-- During refactoring sessions, avoid hard-coded UI copy where a small constants module is enough, but do not introduce broad abstractions. Keep conditions simple and avoid unnecessary ternaries.
+- Store Firestore source data in services/page state rather than copying all server data into Zustand.
+- During refactoring, avoid broad abstractions. Remove indirection first; extract only repeated or complex logic with a clear reason.
+- For participant dashboard queries, keep `meetings.participantIds` synchronized with participant documents so one `array-contains` query can power the dashboard.

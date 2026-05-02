@@ -1,136 +1,76 @@
-# Project Work Log
+# Project Status
 
-## Completed
+## Current Completed Scope
 
-- [x] Replaced Vite starter screen with a minimal dark landing page.
-- [x] Added Firebase email/password signup.
-- [x] Added Google OAuth signup/login.
-- [x] Added Firebase email/password login.
-- [x] Stored user profile metadata in Firestore at `users/{uid}`.
-- [x] Moved route constants and redirect normalization into `src/routes`.
-- [x] Moved styles into `src/styles` with dark theme defaults and mobile-first auth layouts.
-- [x] Reduced avoidable `div` usage in page markup.
-- [x] Moved source architecture to feature-based folders:
-  - `src/app`
-  - `src/features`
-  - `src/shared`
-  - `src/routes`
-  - `src/stores`
-  - `src/styles`
-- [x] Added Zustand dependency and `src/stores/authStore.js`.
-- [x] Moved non-root documentation into `docs/`.
-- [x] Created architecture guide at `docs/architecture/directory-architecture.md`.
-- [x] Created authenticated dashboard planning doc at `docs/product/authenticated-landing.md`.
-- [x] Refactored dashboard copy and meeting section labels out of page components.
-- [x] Added shared app copy constants without introducing broad abstractions.
-- [x] Replaced submit button ternaries with a small readable label helper.
+### Authentication
+
+- [x] Email/password signup
+- [x] Email/password login
+- [x] Google OAuth login/signup
+- [x] Firebase Auth state wired to Zustand `authStore`
+- [x] User profile metadata stored at `users/{uid}`
+- [x] Protected route redirect with post-auth return path
+
+### Landing and Dashboard
+
+- [x] Dark landing page with service value proposition
+- [x] Landing feature section: 1분 생성, 실시간 관리, 추천 날짜 자동 계산
+- [x] Authenticated dashboard at `/dashboard`
+- [x] Dashboard greeting and logout
+- [x] Dashboard Firestore realtime subscription by `participantIds array-contains uid`
+- [x] Dashboard sections: 내가 조율 중, 참여 중, 확정 완료
+- [x] Dashboard status summary: 1행 3열
+- [x] Dashboard actions: `새 약속`, `초대 참여` 1행 2열
+- [x] Invite link join dialog
+- [x] Empty state guide
+
+### Meetings
+
+- [x] Step-based meeting creation at `/meetings/new`
+- [x] Meeting creation validation helpers
+- [x] Firestore batch creation for meeting and host participant
+- [x] Invite share page at `/meetings/{meetingId}/invite`
+- [x] Meeting detail page at `/meetings/{meetingId}`
+- [x] Meeting edit page at `/meetings/{meetingId}/edit`
+- [x] Invite join page at `/meetings/{meetingId}/join`
+- [x] Participant response create/update
+- [x] Participant cancellation
+- [x] Host-only soft delete
+- [x] Host-only confirm action
+- [x] Host reopen action from confirmed dashboard section
+- [x] Realtime participant subscription
+- [x] Recommended dates based on participant availability
+
+### Refactor / Maintenance
+
+- [x] Feature-based source directory structure
+- [x] Centralized route paths and redirect state helpers
+- [x] Removed thin route adapter files
+- [x] Centralized meeting status constants
+- [x] Simplified dashboard query through `participantIds`
+- [x] Removed one-time backfill script and unused Admin SDK dependency
+- [x] Removed unused collection group participant rule
+- [x] Updated docs to current product and architecture state
 
 ## Current Verification
 
-- [x] Run `npm run lint`.
-- [x] Run `npm run build`.
-- [x] Update meeting creation date selection to calendar UI.
-- [x] Make meeting time selection optional.
-- [x] Mark meeting description step as optional in the title.
-- [x] Run `npm run lint`.
-- [x] Run `npm run build`.
-- [x] Keep the meeting creation next/submit button visible on mobile with a sticky footer.
-- [x] Add a top cancel button to exit meeting creation.
-- [x] Run `npm run lint`.
-- [x] Run `npm run build`.
-- [x] Add cancel confirmation dialog for meeting creation.
-- [x] Move step progress to the top-right opposite the cancel button.
-- [x] Run `npm run lint`.
-- [x] Run `npm run build`.
-- [x] Replace native month input with year navigation and month selection UI.
-- [x] Fix meeting date calendar weekday alignment.
-- [x] Show selected target month above the date calendar.
-- [x] Remove default date button fill and only highlight selected days.
-- [x] Run `npm run lint`.
-- [x] Run `npm run build`.
-- [x] Show weekdays in meeting creation review availability list.
-- [x] Run `npm run lint`.
-- [x] Run `npm run build`.
+Last verified commands:
 
-## Next Candidate Work
+```bash
+npm run lint
+npm run build
+```
 
-- [x] Wire Firebase auth state into `authStore`.
-- [x] Redirect authenticated users to `/dashboard`.
-- [x] Implement `DashboardPage` from `docs/product/authenticated-landing.md`.
-- [x] Add `/dashboard` route and protected-route redirect behavior.
-- [x] Add dashboard dark mobile styles.
-- [x] Add logout action.
-- [x] Update dashboard product plan implementation status.
-- [x] Run `npm run lint`.
-- [x] Run `npm run build`.
-- [x] Review `docs/product/meeting-creation.md` before implementation.
-- [x] Add meeting creation route and step-based page.
-- [x] Add meeting creation validation helpers.
-- [x] Add Firestore meeting creation service.
-- [x] Add Firestore rules for `meetings` and `participants`.
-- [x] Connect dashboard `약속 만들기` to `/meetings/new`.
-- [x] Run `npm run lint`.
-- [x] Run `npm run build`.
-- [ ] Review `docs/product/meeting-invite-share.md` before implementation.
-- [x] Review `docs/product/meeting-invite-share.md` before implementation.
-- [x] Add invite share dynamic route handling.
-- [x] Redirect meeting creation success to invite share page.
-- [x] Add invite link copy UI.
-- [x] Add dashboard return action.
-- [x] Run `npm run lint`.
-- [x] Run `npm run build`.
-- [x] Subscribe dashboard `주최 중` list to Firestore meetings where `hostId == uid`.
-- [x] Render hosted meetings in dashboard list.
-- [x] Keep `참여 중` and `확정됨` as placeholders.
-- [x] Run `npm run lint`.
-- [x] Run `npm run build`.
-- [x] Render dashboard meetings as card UI.
-- [x] Run `npm run lint`.
-- [x] Run `npm run build`.
-- [x] Review `docs/product/meeting-management.md` before implementing meeting READ/UPDATE/DELETE.
-- [x] Add meeting detail route and page.
-- [x] Add meeting edit route and page.
-- [x] Add Firestore meeting read, update, and soft delete services.
-- [x] Connect dashboard cards to meeting detail without a separate `보기` button.
-- [x] Keep meeting card status opposite the title.
-- [x] Make meeting creation writes atomic with Firestore batch.
-- [x] Add meeting creation error messages for missing auth/config and permission errors.
-- [x] Plan recommended dates in `docs/product/meeting-recommendations.md`.
-- [x] Add participant availability realtime subscription service.
-- [x] Add date recommendation utility.
-- [x] Render up to 3 recommended dates on meeting detail when there are at least 2 participants.
-- [x] Plan meeting participation flow in `docs/product/meeting-participation.md`.
-- [x] Add `/meetings/{meetingId}/join` route.
-- [x] Add participation page for invited users.
-- [x] Add participant response save service.
-- [x] Update Firestore rules for authenticated invite readers.
-- [x] Add Firestore rules deploy command to `README.md`.
-- [x] Preserve invite join route through login/signup redirect.
-- [x] Remove redundant name input from participation page.
-- [x] Split participation page into date, optional time, and review steps.
-- [x] Show participating meetings on dashboard.
-- [x] Let participants select any date in the target month while marking host-selected dates.
-- [x] Change collecting meeting status label to `진행중`.
-- [x] Add host-only confirm action on meeting detail.
-- [x] Add host-only reopen action in dashboard confirmed section.
-- [x] Remove dashboard `내 약속` realtime notice header.
-- [x] Add invite link join modal on dashboard.
-- [x] Make participating meeting dashboard query independent from participant role.
-- [x] Add explicit collection group participants read rule.
-- [x] Keep participant documents under `meetings/{meetingId}/participants/{uid}` without duplicating `meetingId`.
-- [x] Read participating meetings through direct participant path checks instead of collection group query.
-- [x] Create refactor roadmap at `docs/refactor/refactor-roadmap.md`.
-- [x] Add `participantIds` write path for meeting creation and participation.
-- [x] Add one-time `participantIds` backfill script.
-- [x] Switch dashboard participating query to `array-contains`.
-- [x] Centralize meeting status constants.
-- [x] Remove completed one-time backfill script and Admin SDK dependency.
-- [x] Remove unused participant collection group rule.
-- [x] Remove unused `getMeetingParticipants` service.
-- [x] Rename `조율 월` UI copy to `희망 날짜(월)`.
-- [x] Update dashboard greeting copy.
-- [x] Add participant cancellation flow.
-- [x] Add participant edit navigation from meeting detail to join flow.
-- [x] Run `npm run lint`.
-- [x] Run `npm run build`.
-- [ ] Deploy Firestore rules after Firebase CLI login.
+Both commands pass. Vite may warn that the production bundle is larger than 500 kB; this is a performance follow-up, not a build failure.
+
+## Operational Note
+
+- Firestore rules changes require Firebase CLI login and deployment:
+
+```bash
+firebase deploy --only firestore:rules
+```
+
+## Next Work
+
+See `docs/project/next-work.md` for the next feature, refactor, and UI improvement candidates.
