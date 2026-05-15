@@ -9,8 +9,8 @@
 - 로그인 성공 후 `/dashboard`로 이동한다.
 - 비로그인 사용자가 보호 route에 접근하면 `/login`으로 이동하고, 로그인 후 원래 route로 돌아간다.
 - 이미 로그인한 사용자가 `/login`, `/signup`에 접근하면 `/dashboard` 또는 저장된 redirect 목적지로 이동한다.
-- 대시보드는 `participantIds`에 현재 uid가 포함된 약속을 Firestore에서 실시간 구독한다.
-- 구독한 약속을 page state에서 다음 3개 섹션으로 분류한다.
+- 대시보드는 `participantIds`에 현재 uid가 포함된 약속을 Firestore에서 조회한다.
+- 조회한 약속을 page state에서 다음 3개 섹션으로 분류한다.
   - 내가 조율 중: `hostId === uid`, `status !== confirmed`
   - 참여 중: `hostId !== uid`, `status !== confirmed`
   - 확정 완료: `status === confirmed`
@@ -77,7 +77,7 @@
 - [x] Firebase Auth 상태 기반 redirect
 - [x] 현재 사용자 표시
 - [x] 로그아웃
-- [x] Firestore 실시간 약속 목록 구독
+- [x] Firestore 약속 목록 조회
 - [x] 주최/참여/확정 섹션 분리
 - [x] 초대 링크 참여 dialog
 - [x] 확정 약속 재개최

@@ -4,7 +4,7 @@ import {
   collection,
   doc,
   getDoc,
-  onSnapshot,
+  getDocs,
   serverTimestamp,
   updateDoc,
   writeBatch,
@@ -231,21 +231,15 @@ export async function cancelMeetingParticipation({ meetingId, user }) {
   await batch.commit()
 }
 
-export function subscribeMeetingParticipants(meetingId, onNext, onError) {
+export async function getMeetingParticipants(meetingId) {
   assertFirestoreReady()
 
-  return onSnapshot(
-    collection(db, 'meetings', meetingId, 'participants'),
-    (snapshot) => {
-      const participants = snapshot.docs.map((participantSnapshot) => ({
-        id: participantSnapshot.id,
-        ...participantSnapshot.data(),
-      }))
+  const snapshot = await getDocs(collection(db, 'meetings', meetingId, 'participants'))
 
-      onNext(participants)
-    },
-    onError,
-  )
+  return snapshot.docs.map((participantSnapshot) => ({
+    id: participantSnapshot.id,
+    ...participantSnapshot.data(),
+  }))
 }
 
 export async function deleteMeeting({ meetingId }) {

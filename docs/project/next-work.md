@@ -133,6 +133,48 @@ Manual check:
 
 ## UI Improvement Candidates
 
+### UI 0: 모바일 약속 수정 시간 입력 간격 수정
+
+**Why:** 모바일 약속 수정 화면에서 가능한 시간의 `시작`/`종료` time input이 서로 붙어 보여 터치와 가독성이 나쁘다.
+
+**Root cause:**
+
+- `MeetingTimesStep`는 생성, 수정, 참여 화면이 함께 쓰는 공통 컴포넌트다.
+- 시간 입력 wrapper인 `.time-row__inputs`는 모든 viewport에서 `grid-template-columns: repeat(2, minmax(0, 1fr))`로 시작/종료 input을 1행 2열에 배치한다.
+- 1행 2열 자체가 문제라기보다, 각 grid item과 `input[type="time"]`의 최소 너비를 제어하지 못한 것이 직접 원인이다.
+- `input[type="time"]`는 브라우저 기본 time picker UI 때문에 텍스트 input보다 intrinsic/min-content width가 커질 수 있고, 현재 label에는 `min-width: 0`이나 내부 gap 제어가 없다.
+- 약속 수정 페이지는 단계형 화면이 아니라 `meeting-detail > meeting-edit` 전체 편집 폼 안에 `MeetingDatesStep`과 `MeetingTimesStep`을 한 화면에 렌더링한다.
+- 모바일에서 `.meeting-detail` padding까지 적용되면 실제 content width가 좁아지고, 두 input의 요구 너비가 2열 column 폭을 넘어 붙거나 겹쳐 보인다.
+- 따라서 문제는 수정 페이지에서만 눈에 띄지만, 근본적으로는 시간 입력 컴포넌트가 좁은 2열 안에서 input sizing을 안정적으로 제한하지 못한 것이다.
+
+**Recommended fix:**
+
+- 먼저 1행 2열을 유지할 수 있는지 input sizing을 바로잡는다.
+- `.time-row__inputs label { display: grid; gap: 6px; min-width: 0; }`를 추가해 grid item이 column 안에서 줄어들 수 있게 한다.
+- `input[type="time"]`에 필요한 경우 `min-width: 0`과 모바일 전용 padding 조정을 적용해 column 폭을 넘지 않게 한다.
+- 그래도 360px viewport에서 터치/가독성이 부족하면 `@media (max-width: 360px)` 또는 `max-width: 380px`에서만 `.time-row__inputs`를 1열로 전환한다.
+- 수정 페이지 전용 selector만으로 땜질하지 않는다. 같은 컴포넌트가 다른 좁은 컨테이너에 들어가도 안전해야 한다.
+
+**Files likely touched:**
+
+- `src/styles/meetings.css`
+- 필요 시 `src/features/meetings/components/MeetingTimesStep.jsx`는 className 추가 정도만 허용한다.
+
+**Verification:**
+
+```bash
+npm run lint
+npm run build
+```
+
+Manual check:
+
+- 모바일 viewport 360px 기준으로 약속 수정 화면에서 시작/종료 input이 붙지 않는다.
+- 가능한 한 1행 2열을 유지하되, input이 column 밖으로 넘치지 않는다.
+- 생성 화면의 시간 입력 단계가 어색하게 넓어지거나 깨지지 않는다.
+- 참여 화면의 시간 입력 단계도 같은 spacing을 유지한다.
+- 날짜가 여러 개 선택된 상태에서 각 날짜별 reset 버튼 위치가 자연스럽다.
+
 ### UI 1: 모바일 대시보드 밀도 점검
 
 **Why:** 약속 현황 1행 3열, 주요 액션 1행 2열을 유지하므로 작은 화면에서 텍스트/간격이 타이트할 수 있다.
@@ -173,5 +215,6 @@ Manual check:
 ## Documentation Tasks
 
 - 기능 구현 후 관련 `docs/product/*.md`를 즉시 최신화한다.
+- 약점/보안/기술 부채 판단이 바뀌면 `docs/audit/weaknesses-and-overengineering.md`를 먼저 갱신한다.
 - 리팩토링 완료 시 `docs/refactor/refactor-roadmap.md`의 완료 섹션으로 이동한다.
 - 다음 작업 우선순위가 바뀌면 이 문서를 먼저 수정한다.

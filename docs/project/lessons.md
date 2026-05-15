@@ -10,3 +10,4 @@
 - Store Firestore source data in services/page state rather than copying all server data into Zustand.
 - During refactoring, avoid broad abstractions. Remove indirection first; extract only repeated or complex logic with a clear reason.
 - For participant dashboard queries, keep `meetings.participantIds` synchronized with participant documents so one `array-contains` query can power the dashboard.
+- For simple CRUD screens in this app, avoid escalating loading fixes into realtime architecture changes; first simplify the read/write flow and remove stale indirection.

@@ -25,7 +25,7 @@ function LandingPage({ onLogin, onSignup }) {
           <p>제목, 후보 월, 가능한 날짜만 고르면 초대 링크가 만들어집니다.</p>
         </article>
         <article>
-          <strong>로그인 후 실시간 관리</strong>
+          <strong>로그인 후 일정 관리</strong>
           <p>내가 만든 약속과 참여 중인 약속을 대시보드에서 바로 확인합니다.</p>
         </article>
         <article>

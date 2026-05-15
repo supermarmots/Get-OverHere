@@ -10,7 +10,7 @@ import {
   cancelMeetingParticipation,
   deleteMeeting,
   getMeeting,
-  subscribeMeetingParticipants,
+  getMeetingParticipants,
   updateMeetingStatus,
 } from '../services/meetingService'
 
@@ -26,10 +26,17 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
 
   useEffect(() => {
     let isMounted = true
-    let unsubscribeParticipants = () => {}
 
     async function loadMeeting() {
       try {
+        if (isMounted) {
+          setMeeting(null)
+          setParticipants([])
+          setRecommendations([])
+          setParticipantTotal(0)
+          setError('')
+        }
+
         const loadedMeeting = await getMeeting({ meetingId, userId: user.uid })
 
         if (isMounted) {
@@ -37,23 +44,13 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
           setError('')
         }
 
-        unsubscribeParticipants = subscribeMeetingParticipants(
-          meetingId,
-          (participants) => {
-            if (!isMounted) {
-              return
-            }
+        const participants = await getMeetingParticipants(meetingId)
 
-            setParticipantTotal(participants.length)
-            setParticipants(participants)
-            setRecommendations(getVisibleRecommendations(participants))
-          },
-          (subscribeError) => {
-            if (isMounted) {
-              setError(getMeetingErrorMessage(subscribeError))
-            }
-          },
-        )
+        if (isMounted) {
+          setParticipantTotal(participants.length)
+          setParticipants(participants)
+          setRecommendations(getVisibleRecommendations(participants))
+        }
       } catch (loadError) {
         if (isMounted) {
           setError(getMeetingErrorMessage(loadError))
@@ -65,7 +62,6 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
 
     return () => {
       isMounted = false
-      unsubscribeParticipants()
     }
   }, [meetingId, user.uid])
 
@@ -107,7 +103,7 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
     }
   }
 
-  if (error) {
+  if (error && !meeting) {
     return (
       <main className="meeting-detail">
         <p className="form-status form-status--error">{error}</p>
@@ -125,6 +121,7 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
 
   const inviteUrl = getMeetingJoinUrl(meeting.id)
   const isHost = meeting.hostId === user.uid
+  const currentParticipant = participants.find((participant) => participant.id === user.uid) ?? meeting.participant
   const canConfirm = isHost && meeting.status === MEETING_STATUS.collecting
   const confirmTitle = isHost ? '이 약속을 삭제할까요?' : '참여를 취소할까요?'
   const confirmDescription = isHost
@@ -196,7 +193,7 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
       <section className="meeting-recommendations" aria-labelledby="recommendations-title">
         <header className="meeting-recommendations__header">
           <h2 id="recommendations-title">추천 날짜</h2>
-          <span>실시간</span>
+          <span>자동 계산</span>
         </header>
 
         {recommendations.length > 0 && (
@@ -215,10 +212,12 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
         )}
       </section>
 
+      {error && <p className="form-status form-status--error">{error}</p>}
+
       <section className="meeting-review__slots" aria-label="내 가능 일정">
         <h2>내 가능 일정</h2>
         <ul className="step-list">
-          {(meeting.participant?.availability ?? []).map((slot) => (
+          {(currentParticipant?.availability ?? []).map((slot) => (
             <li key={slot.id}>
               <span>{getDateWithWeekdayLabel(slot.date)}</span>
               <span>{getAvailabilityTimeLabel(slot)}</span>
@@ -274,7 +273,7 @@ function getVisibleRecommendations(participants) {
 
 function getRecommendationEmptyMessage(participantTotal) {
   if (participantTotal < 2) {
-    return '참여자가 2명 이상일 때 실시간 추천 날짜를 표시합니다.'
+    return '참여자가 2명 이상일 때 추천 날짜를 표시합니다.'
   }
 
   return '아직 추천할 수 있는 후보가 없습니다.'

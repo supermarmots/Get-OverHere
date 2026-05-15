@@ -8,7 +8,7 @@ import { updateMeetingStatus } from '../../meetings/services/meetingService'
 import MeetingListSection from '../components/MeetingListSection'
 import { getDashboardErrorMessage } from '../lib/dashboardErrors'
 import { meetingSections } from '../lib/meetingSections'
-import { subscribeUserMeetings } from '../services/dashboardService'
+import { fetchUserMeetings } from '../services/dashboardService'
 
 function getDisplayName(user) {
   if (user?.displayName) {
@@ -47,25 +47,16 @@ function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeet
       return undefined
     }
 
-    let unsubscribe = () => { }
     let isMounted = true
 
-    async function subscribe() {
+    async function loadMeetings() {
       try {
-        unsubscribe = subscribeUserMeetings(
-          user.uid,
-          (meetings) => {
-            if (isMounted) {
-              setMeetings(meetings)
-              setListError('')
-            }
-          },
-          (error) => {
-            if (isMounted) {
-              setListError(getDashboardErrorMessage(error))
-            }
-          },
-        )
+        const meetings = await fetchUserMeetings(user.uid)
+
+        if (isMounted) {
+          setMeetings(meetings)
+          setListError('')
+        }
       } catch (error) {
         if (isMounted) {
           setListError(getDashboardErrorMessage(error))
@@ -73,11 +64,10 @@ function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeet
       }
     }
 
-    subscribe()
+    loadMeetings()
 
     return () => {
       isMounted = false
-      unsubscribe()
     }
   }, [user?.uid])
 
@@ -97,6 +87,15 @@ function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeet
 
     try {
       await updateMeetingStatus({ meetingId: meeting.id, status: MEETING_STATUS.collecting })
+      setMeetings((currentMeetings) => {
+        return currentMeetings.map((currentMeeting) => {
+          if (currentMeeting.id !== meeting.id) {
+            return currentMeeting
+          }
+
+          return { ...currentMeeting, status: MEETING_STATUS.collecting }
+        })
+      })
     } catch {
       setStatus('약속을 다시 진행하는 중 문제가 발생했습니다.')
     }

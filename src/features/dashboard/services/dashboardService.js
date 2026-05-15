@@ -1,4 +1,4 @@
-import { collection, onSnapshot, query, where } from 'firebase/firestore'
+import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db, firebaseConfigReady } from '../../../shared/lib/firebase'
 import { MEETING_STATUS } from '../../meetings/lib/meetingStatus'
 
@@ -16,22 +16,17 @@ function assertDashboardReady(userId) {
   }
 }
 
-export function subscribeUserMeetings(userId, onChange, onError) {
+export async function fetchUserMeetings(userId) {
   assertDashboardReady(userId)
 
-  return onSnapshot(
-    query(
-      collection(db, 'meetings'),
-      where('participantIds', 'array-contains', userId),
-    ),
-    (snapshot) => {
-      onChange(sortMeetings(
-        snapshot.docs
-          .map((meetingDoc) => ({ id: meetingDoc.id, ...meetingDoc.data() }))
-          .filter((meeting) => meeting.status !== MEETING_STATUS.deleted),
-      ))
-    },
-    onError,
+  const snapshot = await getDocs(
+    query(collection(db, 'meetings'), where('participantIds', 'array-contains', userId)),
+  )
+
+  return sortMeetings(
+    snapshot.docs
+      .map((meetingDoc) => ({ id: meetingDoc.id, ...meetingDoc.data() }))
+      .filter((meeting) => meeting.status !== MEETING_STATUS.deleted),
   )
 }
 

@@ -16,21 +16,35 @@ function EditMeetingPage({ meetingId, onCancel, onSaved }) {
   const user = useAuthStore((state) => state.user)
   const [form, setForm] = useState(initialMeetingForm)
   const [error, setError] = useState('')
+  const [loadError, setLoadError] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     let isMounted = true
 
     async function loadMeeting() {
+      if (isMounted) {
+        setForm(initialMeetingForm)
+        setError('')
+        setLoadError('')
+        setIsLoading(true)
+      }
+
       try {
         const meeting = await getMeeting({ meetingId, userId: user.uid })
 
         if (isMounted) {
           setForm(createMeetingFormFromMeeting(meeting))
+          setError('')
         }
       } catch (loadError) {
         if (isMounted) {
-          setError(getMeetingErrorMessage(loadError))
+          setLoadError(getMeetingErrorMessage(loadError))
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
         }
       }
     }
@@ -93,6 +107,22 @@ function EditMeetingPage({ meetingId, onCancel, onSaved }) {
     }
   }
 
+  if (loadError) {
+    return (
+      <main className="meeting-detail">
+        <p className="form-status form-status--error">{loadError}</p>
+      </main>
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <main className="meeting-detail">
+        <p className="landing__eyebrow">약속을 불러오는 중</p>
+      </main>
+    )
+  }
+
   return (
     <main className="meeting-detail">
       <form className="meeting-edit" onSubmit={saveMeeting} noValidate>
@@ -124,7 +154,11 @@ function EditMeetingPage({ meetingId, onCancel, onSaved }) {
         {error && <p className="form-status form-status--error">{error}</p>}
 
         <footer className="meeting-detail__actions meeting-edit__actions">
-          <button type="submit" className="landing__login meeting-edit__submit" disabled={isSubmitting}>
+          <button
+            type="submit"
+            className="landing__login meeting-edit__submit"
+            disabled={isSubmitting}
+          >
             저장
           </button>
         </footer>

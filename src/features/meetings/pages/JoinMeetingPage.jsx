@@ -46,6 +46,13 @@ function JoinMeetingPage({ meetingId, onDashboard }) {
 
     async function loadMeeting() {
       try {
+        setMeeting(null)
+        setHostAvailability([])
+        setAvailability([])
+        setStepIndex(0)
+        setIsSubmitted(false)
+        setError('')
+
         const joinData = await getMeetingJoinData({ meetingId, userId: userUid })
 
         if (isMounted) {
@@ -66,7 +73,7 @@ function JoinMeetingPage({ meetingId, onDashboard }) {
     return () => {
       isMounted = false
     }
-  }, [meetingId, userDisplayName, userEmail, userUid])
+  }, [meetingId, userUid])
 
   const hostDates = useMemo(() => {
     return new Set(hostAvailability.map((slot) => slot.date).filter(Boolean))

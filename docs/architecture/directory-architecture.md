@@ -22,6 +22,7 @@ Get Over Here는 React 19 + Vite 기반의 약속 일정 조율 앱이다. Fireb
 - 루트에 둘 수 있는 Markdown: `README.md`, `AGENTS.md`
 - 제품 문서: `docs/product/`
 - 아키텍처 문서: `docs/architecture/`
+- 약점/보안/기술 부채 점검: `docs/audit/`
 - 진행 기록, 회고, 다음 작업: `docs/project/`
 - 리팩토링 로드맵: `docs/refactor/`
 
