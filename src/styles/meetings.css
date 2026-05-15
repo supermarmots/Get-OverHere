@@ -47,9 +47,17 @@
   padding-top: 8px;
 }
 
+.step-flow__footer > button,
+.join-flow__actions > button {
+  width: 100%;
+  min-width: 0;
+}
+
 .step-field {
   display: grid;
   gap: 12px;
+  min-width: 0;
+  min-inline-size: 0;
   margin: 0;
   padding: 0;
   border: 0;
@@ -67,6 +75,8 @@
 .step-field input,
 .step-field textarea {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   min-height: 50px;
   padding: 12px 14px;
   border: 1px solid var(--line);
@@ -200,6 +210,8 @@
 .time-row {
   display: grid;
   gap: 12px;
+  min-width: 0;
+  min-inline-size: 0;
   margin: 0;
   padding: 16px 0;
   border: 0;
@@ -217,6 +229,18 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+  min-width: 0;
+}
+
+.time-row__inputs label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.time-row__inputs input[type='time'] {
+  width: 100%;
+  min-width: 0;
 }
 
 .time-row__reset {
@@ -266,6 +290,9 @@
 
 .confirm-dialog {
   width: min(calc(100% - 36px), 420px);
+  max-height: calc(100svh - 36px);
+  max-height: calc(100dvh - 36px);
+  overflow: auto;
   inset: 50% auto auto 50%;
   transform: translate(-50%, -50%);
   padding: 0;
@@ -283,12 +310,14 @@
 .confirm-dialog section {
   display: grid;
   gap: 14px;
+  min-width: 0;
   padding: 22px;
 }
 
 .confirm-dialog form {
   display: grid;
   gap: 14px;
+  min-width: 0;
   padding: 22px;
 }
 
@@ -598,6 +627,10 @@
   padding-top: 4px;
 }
 
+.meeting-detail__actions > button {
+  min-width: 0;
+}
+
 .meeting-detail__action {
   width: 100%;
   min-height: 44px;
@@ -609,6 +642,7 @@
 .meeting-edit {
   display: grid;
   gap: 22px;
+  min-width: 0;
 }
 
 .meeting-edit__actions {
@@ -756,18 +790,27 @@
   }
 
   .step-flow__footer {
-    grid-template-columns: 1fr;
-  }
-
-  .step-flow__footer {
     display: grid;
+    grid-template-columns: 1fr;
     position: sticky;
     bottom: 0;
     margin-inline: -18px;
     padding: 14px 18px 18px;
+    padding: 14px 18px calc(18px + env(safe-area-inset-bottom));
     background:
       linear-gradient(180deg, rgba(9, 13, 20, 0), var(--bg) 24%),
       var(--bg);
+  }
+
+  .confirm-dialog__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .confirm-dialog__actions > button {
+    width: 100%;
+    min-width: 0;
   }
 
   .invite-page {
@@ -787,12 +830,28 @@
     padding: 22px 18px 28px;
   }
 
+  .meeting-detail__header {
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    gap: 10px;
+  }
+
   .meeting-detail__header h1 {
     font-size: 30px;
   }
 
+  .meeting-detail__confirm {
+    max-width: 84px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .meeting-detail__actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .time-row__inputs {
+    grid-template-columns: 1fr;
   }
 
   .join-page {
@@ -812,7 +871,8 @@
     position: sticky;
     bottom: 0;
     margin-inline: -18px;
-    padding: 14px 18px 0;
+    padding: 14px 18px 18px;
+    padding: 14px 18px calc(18px + env(safe-area-inset-bottom));
     background:
       linear-gradient(180deg, rgba(9, 13, 20, 0), var(--bg) 24%),
       var(--bg);
