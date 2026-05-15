@@ -2,7 +2,7 @@
 
 ## Goal
 
-다음 작업은 핵심 플로우를 유지하면서 제품 완성도를 높이는 순서로 진행한다. 큰 추상화보다 작은 기능 완성, 검증 가능한 리팩토링, 사용자에게 바로 보이는 UI 개선을 우선한다.
+다음 작업은 핵심 플로우를 유지하면서 제품 완성도를 높이는 순서로 진행한다. 단순화로 작은 기능 완성, 검증 가능한 리팩토링, 사용자에게 바로 보이는 UI 개선을 우선한다.
 
 ## Feature Candidates
 
@@ -52,8 +52,8 @@ Manual check:
 
 **Files likely touched:**
 
+- `src/features/dashboard/components/`에 별도 검색 컴포넌트 생성
 - `src/features/dashboard/pages/DashboardPage.jsx`
-- `src/features/dashboard/components/MeetingListSection.jsx`
 - `src/styles/dashboard.css`
 
 **Verification:**
@@ -116,7 +116,6 @@ Manual check:
 - 주최자 role 유지
 - 로그인 redirect 후 join route 복귀
 
-### Refactor 3: Bundle size 개선 조사
 
 **Why:** Vite build에서 500 kB 초과 경고가 발생한다.
 

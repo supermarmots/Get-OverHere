@@ -2,124 +2,42 @@ rules_version='2'
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isHost() {
+      return resource.data.hostId == request.auth.uid;
+    }
+
+    function isOnlyParticipantIdsUpdated() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participantIds', 'updatedAt']);
+    }
+
     match /users/{userId} {
       allow read, create, update: if isSignedIn() && request.auth.uid == userId;
       allow delete: if false;
     }
 
+    function isParentMeetingHost(meetingId) {
+      return get(/databases/$(database)/documents/meetings/$(meetingId)).data.hostId == request.auth.uid;
+    }
+
     match /meetings/{meetingId} {
-      allow create: if isMeetingHostOnCreate();
       allow read: if isSignedIn();
-      allow update: if canUpdateMeeting(meetingId);
-      allow delete: if false;
+      allow create: if isSignedIn() && request.resource.data.hostId == request.auth.uid;
+      allow update: if isSignedIn() && (isHost() || isOnlyParticipantIdsUpdated());
+      allow delete: if isSignedIn() && isHost();
 
       match /participants/{userId} {
         allow read: if isSignedIn();
-        allow create, update: if isParticipantDocOwner(userId)
-          && meetingAfterIncludesParticipant(meetingId, userId);
-        allow delete: if canCancelParticipant(meetingId, userId);
+        allow write: if isSignedIn() && (request.auth.uid == userId || isParentMeetingHost(meetingId));
       }
     }
 
     match /{document=**} {
       allow read, write: if false;
     }
-
-  function isSignedIn() {
-    return request.auth != null;
-  }
-
-  function isHost() {
-    return resource.data.hostId == request.auth.uid;
-  }
-
-  function isParticipantDocOwner(userId) {
-    return isSignedIn() && request.auth.uid == userId;
-  }
-
-  function isMeetingHostOnCreate() {
-    return isSignedIn() && request.resource.data.hostId == request.auth.uid;
-  }
-
-  function canUpdateMeeting(meetingId) {
-    return isSignedIn()
-      && (isHost()
-        || isParticipantJoinUpdate(meetingId)
-        || isParticipantCancelUpdate(meetingId));
-  }
-
-  function isParticipantJoinUpdate(meetingId) {
-    return changesOnlyParticipantMetadata()
-      && existsAfter(/databases/$(database)/documents/meetings/$(meetingId)/participants/$(request.auth.uid))
-      && participantIdsIncludesRequester()
-      && onlyAddsRequesterIfParticipantIdsChanged();
-  }
-
-  function isParticipantCancelUpdate(meetingId) {
-    return changesOnlyParticipantMetadata()
-      && exists(/databases/$(database)/documents/meetings/$(meetingId)/participants/$(request.auth.uid))
-      && !existsAfter(/databases/$(database)/documents/meetings/$(meetingId)/participants/$(request.auth.uid))
-      && onlyRemovesRequesterFromParticipantIds();
-  }
-
-  function canCancelParticipant(meetingId, userId) {
-    return isParticipantDocOwner(userId)
-      && resource.data.role != 'host'
-      && meetingAfterReflectsCanceledParticipant(meetingId, userId);
-  }
-
-  function meetingAfterIncludesParticipant(meetingId, userId) {
-    return meetingAfter(meetingId).participantIds.hasAll([userId]);
-  }
-
-  function meetingAfterReflectsCanceledParticipant(meetingId, userId) {
-    return !meetingAfter(meetingId).participantIds.hasAny([userId]);
-  }
-
-  function changesOnlyParticipantMetadata() {
-    return changedKeys().hasOnly(['participantIds', 'updatedAt']);
-  }
-
-  function onlyAddsRequesterIfParticipantIdsChanged() {
-    return changesField('participantIds')
-      ? onlyAddsRequesterToParticipantIds()
-      : true;
-  }
-
-  function onlyAddsRequesterToParticipantIds() {
-    return request.resource.data.participantIds.hasAll(existingParticipantIds())
-      && request.resource.data.participantIds.hasAll([request.auth.uid])
-      && request.resource.data.participantIds.size() <= existingParticipantIds().size() + 1;
-  }
-
-  function onlyRemovesRequesterFromParticipantIds() {
-    return changesField('participantIds')
-      && existingParticipantIds().hasAll(request.resource.data.participantIds)
-      && !request.resource.data.participantIds.hasAny([request.auth.uid])
-      && request.resource.data.participantIds.size() == existingParticipantIds().size() - 1;
-  }
-
-  function participantIdsIncludesRequester() {
-    return request.resource.data.keys().hasAny(['participantIds'])
-      && request.resource.data.participantIds.hasAll([request.auth.uid]);
-  }
-
-  function existingParticipantIds() {
-    return resource.data.keys().hasAny(['participantIds'])
-      ? resource.data.participantIds
-      : [];
-  }
-
-  function changedKeys() {
-    return request.resource.data.diff(resource.data).affectedKeys();
-  }
-
-  function changesField(field) {
-    return changedKeys().hasAny([field]);
-  }
-
-  function meetingAfter(meetingId) {
-    return getAfter(/databases/$(database)/documents/meetings/$(meetingId)).data;
-  }
   }
 }

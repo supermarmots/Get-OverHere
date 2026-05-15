@@ -37,7 +37,7 @@ export async function createMeeting({ form, host }) {
     description: form.description.trim(),
     hostId: host.uid,
     participantIds: [host.uid],
-    recommendation: null,
+    confirmedResult: null,
     status: MEETING_STATUS.collecting,
     targetMonth: form.targetMonth,
     title: form.title.trim(),
@@ -53,7 +53,6 @@ export async function createMeeting({ form, host }) {
       startTime,
     })),
     displayName: host.displayName || host.email,
-    role: 'host',
     uid: host.uid,
     createdAt: now,
     updatedAt: now,
@@ -80,12 +79,6 @@ export async function getMeeting({ meetingId, userId }) {
     })
   }
 
-  if (meetingSnapshot.data().status === MEETING_STATUS.deleted) {
-    throw Object.assign(new Error('Meeting has been deleted.'), {
-      code: 'app/not-found',
-    })
-  }
-
   return {
     id: meetingSnapshot.id,
     ...meetingSnapshot.data(),
@@ -99,7 +92,7 @@ export async function getMeetingJoinData({ meetingId, userId }) {
   const meetingRef = doc(db, 'meetings', meetingId)
   const meetingSnapshot = await getDoc(meetingRef)
 
-  if (!meetingSnapshot.exists() || meetingSnapshot.data().status === MEETING_STATUS.deleted) {
+  if (!meetingSnapshot.exists()) {
     throw Object.assign(new Error('Meeting not found.'), {
       code: 'app/not-found',
     })
@@ -184,7 +177,6 @@ export async function submitMeetingParticipation({ availability, displayName, me
       startTime,
     })),
     displayName: displayName.trim(),
-    role: participantSnapshot.data()?.role || 'participant',
     uid: user.uid,
     updatedAt: now,
     ...(!participantSnapshot.exists() && { createdAt: now }),
@@ -208,13 +200,16 @@ export async function cancelMeetingParticipation({ meetingId, user }) {
   }
 
   const participantRef = doc(db, 'meetings', meetingId, 'participants', user.uid)
-  const participantSnapshot = await getDoc(participantRef)
+  const [participantSnapshot, meetingSnapshot] = await Promise.all([
+    getDoc(participantRef),
+    getDoc(doc(db, 'meetings', meetingId))
+  ])
 
   if (!participantSnapshot.exists()) {
     return
   }
 
-  if (participantSnapshot.data().role === 'host') {
+  if (meetingSnapshot.data()?.hostId === user.uid) {
     throw Object.assign(new Error('Host participation cannot be canceled.'), {
       code: 'app/host-cannot-cancel',
     })
@@ -245,9 +240,13 @@ export async function getMeetingParticipants(meetingId) {
 export async function deleteMeeting({ meetingId }) {
   assertFirestoreReady()
 
-  await updateDoc(doc(db, 'meetings', meetingId), {
-    deletedAt: serverTimestamp(),
-    status: MEETING_STATUS.deleted,
-    updatedAt: serverTimestamp(),
+  const snapshot = await getDocs(collection(db, 'meetings', meetingId, 'participants'))
+  const batch = writeBatch(db)
+
+  snapshot.forEach((docSnap) => {
+    batch.delete(docSnap.ref)
   })
+  batch.delete(doc(db, 'meetings', meetingId))
+
+  await batch.commit()
 }

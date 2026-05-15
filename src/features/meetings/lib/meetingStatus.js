@@ -1,7 +1,6 @@
 export const MEETING_STATUS = {
   collecting: 'collecting',
   confirmed: 'confirmed',
-  deleted: 'deleted',
 }
 
 export function getMeetingStatusLabel(status) {

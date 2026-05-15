@@ -1,6 +1,5 @@
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db, firebaseConfigReady } from '../../../shared/lib/firebase'
-import { MEETING_STATUS } from '../../meetings/lib/meetingStatus'
 
 function assertDashboardReady(userId) {
   if (!firebaseConfigReady || !db) {
@@ -24,9 +23,7 @@ export async function fetchUserMeetings(userId) {
   )
 
   return sortMeetings(
-    snapshot.docs
-      .map((meetingDoc) => ({ id: meetingDoc.id, ...meetingDoc.data() }))
-      .filter((meeting) => meeting.status !== MEETING_STATUS.deleted),
+    snapshot.docs.map((meetingDoc) => ({ id: meetingDoc.id, ...meetingDoc.data() }))
   )
 }
 
