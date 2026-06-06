@@ -6,41 +6,7 @@
 
 ## Feature Candidates
 
-### Feature 1: 확정 날짜/시간 저장
-
-**Why:** 현재 `확정하기`는 meeting status만 `confirmed`로 바꾼다. 실제로 어떤 날짜/시간이 확정되었는지 저장하지 않는다.
-
-**Scope:**
-
-- `meetings/{meetingId}`에 확정 결과 필드 추가
-  - 예: `confirmedDate`, `confirmedStartTime`, `confirmedEndTime`
-- 상세 화면 추천 날짜에서 주최자가 후보를 선택할 수 있게 한다.
-- 확정 완료 dashboard card와 상세 화면에 확정 결과를 표시한다.
-- Firestore rules에서 host만 확정 결과를 수정할 수 있게 확인한다.
-
-**Files likely touched:**
-
-- `src/features/meetings/pages/MeetingDetailPage.jsx`
-- `src/features/meetings/lib/meetingRecommendations.js`
-- `src/features/meetings/services/meetingService.js`
-- `src/features/dashboard/components/MeetingCard.jsx`
-- `firestore.rules`
-- `docs/product/meeting-recommendations.md`
-
-**Verification:**
-
-```bash
-npm run lint
-npm run build
-```
-
-Manual check:
-
-- 주최자가 추천 날짜를 선택해 확정한다.
-- 대시보드 확정 완료 섹션에 확정 결과가 보인다.
-- 참여자는 확정 결과를 읽을 수 있지만 수정할 수 없다.
-
-### Feature 2: 대시보드 필터/검색
+### Feature 1: 대시보드 필터/검색
 
 **Why:** 약속 수가 늘어나면 3개 섹션만으로 찾기 어렵다.
 
@@ -191,15 +157,14 @@ Manual check:
 - 텍스트 겹침 없음
 - 버튼 2개가 한 행에 유지됨
 
-### UI 2: 상세 화면 추천 날짜 CTA 강화
+### UI 2: 상세 화면 추천 날짜 CTA 추가 개선
 
-**Why:** 추천 날짜가 보여도 다음 행동인 확정이 시각적으로 약할 수 있다.
+**Why:** 확정 날짜/시간 저장은 구현되었지만 상세 화면이 더 커졌으므로 CTA와 추천 후보 선택 영역의 밀도를 점검할 필요가 있다.
 
 **Scope:**
 
 - 추천 날짜와 `확정하기` 관계를 더 명확하게 표현
-- 확정 기능이 status만 바꾸는 현재 한계를 copy로 숨기지 않는다.
-- Feature 1과 함께 진행하면 확정 후보 선택 UI로 자연스럽게 연결된다.
+- 확정 dialog의 날짜 후보, 시간 입력, 오류 메시지가 모바일에서 겹치지 않는지 확인한다.
 
 ### UI 3: 랜딩 페이지 브랜드 정체성 보강
 

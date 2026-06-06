@@ -6,7 +6,6 @@ import {
   getDoc,
   getDocs,
   serverTimestamp,
-  updateDoc,
   writeBatch,
 } from 'firebase/firestore'
 import { db, firebaseConfigReady } from '../../../shared/lib/firebase'
@@ -146,13 +145,44 @@ export async function updateMeeting({ form, meetingId, user }) {
   await batch.commit()
 }
 
-export async function updateMeetingStatus({ meetingId, status }) {
+export async function confirmMeeting({ confirmedResult, meetingId, user }) {
   assertFirestoreReady()
 
-  await updateDoc(doc(db, 'meetings', meetingId), {
-    status,
+  if (!user?.uid) {
+    throw Object.assign(new Error('User is missing.'), {
+      code: 'app/missing-user',
+    })
+  }
+
+  const batch = writeBatch(db)
+
+  batch.update(doc(db, 'meetings', meetingId), {
+    confirmedResult: {
+      date: confirmedResult.date,
+      endTime: confirmedResult.endTime,
+      startTime: confirmedResult.startTime,
+      confirmedAt: serverTimestamp(),
+      confirmedBy: user.uid,
+    },
+    status: MEETING_STATUS.confirmed,
     updatedAt: serverTimestamp(),
   })
+
+  await batch.commit()
+}
+
+export async function reopenMeeting({ meetingId }) {
+  assertFirestoreReady()
+
+  const batch = writeBatch(db)
+
+  batch.update(doc(db, 'meetings', meetingId), {
+    confirmedResult: null,
+    status: MEETING_STATUS.collecting,
+    updatedAt: serverTimestamp(),
+  })
+
+  await batch.commit()
 }
 
 export async function submitMeetingParticipation({ availability, displayName, meetingId, user }) {

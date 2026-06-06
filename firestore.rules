@@ -11,8 +11,49 @@ service cloud.firestore {
       return resource.data.hostId == request.auth.uid;
     }
 
-    function isOnlyParticipantIdsUpdated() {
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participantIds', 'updatedAt']);
+    function isHostMeetingUpdate() {
+      return isHost()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'confirmedResult',
+          'description',
+          'status',
+          'targetMonth',
+          'title',
+          'updatedAt'
+        ])
+        && ['collecting', 'confirmed'].hasAll([request.resource.data.status])
+        && (request.resource.data.confirmedResult == null || request.resource.data.confirmedResult is map);
+    }
+
+    function isParticipantIdsSelfJoin() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participantIds', 'updatedAt'])
+        && resource.data.participantIds.hasOnly(request.resource.data.participantIds)
+        && request.resource.data.participantIds.hasOnly(resource.data.participantIds + [request.auth.uid])
+        && request.resource.data.participantIds.hasAll([request.auth.uid]);
+    }
+
+    function isParticipantIdsSelfCancel() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participantIds', 'updatedAt'])
+        && request.resource.data.participantIds.hasOnly(resource.data.participantIds)
+        && resource.data.participantIds.hasOnly(request.resource.data.participantIds + [request.auth.uid])
+        && !request.resource.data.participantIds.hasAll([request.auth.uid]);
+    }
+
+    function isParticipantIdsSelfUpdate() {
+      return isParticipantIdsSelfJoin() || isParticipantIdsSelfCancel();
+    }
+
+    function hasValidParticipantShape(userId) {
+      return request.resource.data.keys().hasOnly([
+          'availability',
+          'createdAt',
+          'displayName',
+          'uid',
+          'updatedAt'
+        ])
+        && request.resource.data.uid == userId
+        && request.resource.data.displayName is string
+        && request.resource.data.availability is list;
     }
 
     match /users/{userId} {
@@ -27,12 +68,15 @@ service cloud.firestore {
     match /meetings/{meetingId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.hostId == request.auth.uid;
-      allow update: if isSignedIn() && (isHost() || isOnlyParticipantIdsUpdated());
+      allow update: if isSignedIn() && (isHostMeetingUpdate() || isParticipantIdsSelfUpdate());
       allow delete: if isSignedIn() && isHost();
 
       match /participants/{userId} {
         allow read: if isSignedIn();
-        allow write: if isSignedIn() && (request.auth.uid == userId || isParentMeetingHost(meetingId));
+        allow create, update: if isSignedIn()
+          && request.auth.uid == userId
+          && hasValidParticipantShape(userId);
+        allow delete: if isSignedIn() && (request.auth.uid == userId || isParentMeetingHost(meetingId));
       }
     }
 

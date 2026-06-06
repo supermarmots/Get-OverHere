@@ -334,8 +334,73 @@
 .confirm-dialog__actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 12px;
   margin-top: 8px;
+}
+
+.confirm-dialog__actions > button {
+  width: auto;
+  min-width: 0;
+  min-height: 40px;
+  padding-inline: 16px;
+}
+
+.confirm-dialog__primary {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--accent);
+}
+
+.confirm-date-options {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.confirm-date-options legend {
+  padding: 0;
+  color: var(--text-h);
+  font-weight: 700;
+}
+
+.confirm-date-options button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-soft);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.confirm-date-options button[aria-pressed='true'] {
+  border-color: var(--accent);
+  color: var(--text-h);
+}
+
+.confirm-date-options button span:last-child {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.confirm-date-options button:focus-visible {
+  outline: 3px solid var(--accent-ring);
+  outline-offset: 2px;
+}
+
+.confirm-dialog .time-row {
+  gap: 10px;
+  padding: 10px 0 0;
 }
 
 .invite-page {

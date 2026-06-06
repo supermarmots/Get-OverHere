@@ -10,7 +10,8 @@
 2. 상세 화면에서 `추천 날짜` 영역을 확인한다.
 3. 참여자 응답이 2명 이상이면 availability를 집계해 득표가 높은 날짜 최대 3개를 표시한다.
 4. 후보가 없으면 빈 상태 메시지를 보여준다.
-5. 주최자는 추천 결과를 참고해 `확정하기`로 약속 상태를 확정할 수 있다.
+5. 주최자는 `확정하기`에서 추천 후보 중 하나를 선택하고, 필요하면 시작/종료 시간을 입력한다.
+6. 확정 결과는 meeting 문서에 저장되고 상세 화면과 대시보드 확정 카드에 표시된다.
 
 ## 추천 기준
 
@@ -39,7 +40,22 @@
 
 - `meetings/{meetingId}/participants` 서브컬렉션 조회
 - 클라이언트에서 날짜별 집계
-- 1차 구현에서는 `meetings/{meetingId}.recommendation`에 저장하지 않고 화면 계산만 수행한다.
+- 추천 결과 자체는 저장하지 않고 화면에서 계산한다.
+- 최종 확정 결과는 `meetings/{meetingId}.confirmedResult`에 저장한다.
+
+```js
+{
+  confirmedResult: {
+    date: 'YYYY-MM-DD',
+    startTime: 'HH:mm' | '',
+    endTime: 'HH:mm' | '',
+    confirmedAt: serverTimestamp(),
+    confirmedBy: hostUid
+  },
+  status: 'confirmed',
+  updatedAt: serverTimestamp()
+}
+```
 
 ## 완료된 범위
 
@@ -47,12 +63,13 @@
 - [x] 날짜 후보 계산 유틸
 - [x] 참여자 2명 이상일 때 추천 날짜 최대 3개 표시
 - [x] 빈 상태 UI
-- [x] 주최자 확정 액션
+- [x] 주최자 확정 날짜/시간 저장 액션
+- [x] 확정 결과 상세/대시보드 표시
+- [x] 재개최 시 확정 결과 초기화
 - [x] lint/build 검증
 
 ## 범위 제외 / 다음 후보
 
 - 시간대별 추천
-- 확정 날짜/시간을 별도 필드로 저장
 - 추천 결과 Firestore 저장
 - 알림/공유 기능

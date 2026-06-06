@@ -37,7 +37,9 @@
 - [x] Participant cancellation
 - [x] Host-only hard delete
 - [x] Host-only confirm action
-- [x] Host reopen action from confirmed dashboard section
+- [x] Confirmed date/time result storage
+- [x] Confirmed result display on detail and dashboard
+- [x] Host reopen action from confirmed dashboard section clears confirmed result
 - [x] Participant availability query
 - [x] Recommended dates based on participant availability
 

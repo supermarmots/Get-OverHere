@@ -1,7 +1,9 @@
 import { getMeetingParticipantLabel, getMeetingStatusLabel } from '../lib/meetingFormat'
+import { getConfirmedResultLabel } from '../../meetings/lib/confirmedResult'
 
 function MeetingCard({ actionLabel, canUseAction, meeting, onAction, onOpen }) {
   const showAction = actionLabel && onAction && canUseAction?.(meeting)
+  const confirmedResultLabel = getConfirmedResultLabel(meeting.confirmedResult)
 
   return (
     <article
@@ -21,6 +23,12 @@ function MeetingCard({ actionLabel, canUseAction, meeting, onAction, onOpen }) {
         <span>{getMeetingStatusLabel(meeting.status)}</span>
       </header>
       <dl className="meeting-card__meta">
+        {confirmedResultLabel && (
+          <div className="meeting-card__confirmed">
+            <dt>확정 일정</dt>
+            <dd>{confirmedResultLabel}</dd>
+          </div>
+        )}
         <div>
           <dt>희망 날짜(월)</dt>
           <dd>{meeting.targetMonth}</dd>

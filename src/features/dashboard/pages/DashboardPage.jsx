@@ -4,7 +4,7 @@ import { useAuthStore } from '../../../stores/authStore'
 import { DEFAULT_USER_NAME, DASHBOARD_COPY } from '../../../shared/lib/appCopy'
 import { logout } from '../../auth/services/authService'
 import { MEETING_STATUS } from '../../meetings/lib/meetingStatus'
-import { updateMeetingStatus } from '../../meetings/services/meetingService'
+import { reopenMeeting as reopenMeetingStatus } from '../../meetings/services/meetingService'
 import MeetingListSection from '../components/MeetingListSection'
 import { getDashboardErrorMessage } from '../lib/dashboardErrors'
 import { meetingSections } from '../lib/meetingSections'
@@ -86,14 +86,18 @@ function DashboardPage({ onCreateMeeting, onJoinWithInvite, onLogout, onOpenMeet
     setStatus('')
 
     try {
-      await updateMeetingStatus({ meetingId: meeting.id, status: MEETING_STATUS.collecting })
+      await reopenMeetingStatus({ meetingId: meeting.id })
       setMeetings((currentMeetings) => {
         return currentMeetings.map((currentMeeting) => {
           if (currentMeeting.id !== meeting.id) {
             return currentMeeting
           }
 
-          return { ...currentMeeting, status: MEETING_STATUS.collecting }
+          return {
+            ...currentMeeting,
+            confirmedResult: null,
+            status: MEETING_STATUS.collecting,
+          }
         })
       })
     } catch {

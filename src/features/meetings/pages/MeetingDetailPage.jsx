@@ -3,15 +3,17 @@ import { useAuthStore } from '../../../stores/authStore'
 import { getMeetingJoinUrl } from '../../../routes/paths'
 import { getMeetingStatusLabel } from '../../dashboard/lib/meetingFormat'
 import { getAvailabilityTimeLabel, getDateWithWeekdayLabel } from '../lib/createMeetingForm'
+import { createConfirmedResultFromRecommendation, getConfirmedResultLabel } from '../lib/confirmedResult'
 import { getMeetingErrorMessage } from '../lib/meetingErrors'
 import { getDateRecommendations } from '../lib/meetingRecommendations'
 import { MEETING_STATUS } from '../lib/meetingStatus'
 import {
   cancelMeetingParticipation,
+  confirmMeeting,
   deleteMeeting,
   getMeeting,
   getMeetingParticipants,
-  updateMeetingStatus,
+  reopenMeeting,
 } from '../services/meetingService'
 
 function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
@@ -22,7 +24,9 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
   const [participantTotal, setParticipantTotal] = useState(0)
   const [error, setError] = useState('')
   const [copyStatus, setCopyStatus] = useState('')
+  const [confirmForm, setConfirmForm] = useState(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
 
   useEffect(() => {
     let isMounted = true
@@ -94,12 +98,79 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
     }
   }
 
-  async function confirmMeeting() {
+  function openConfirmDialog() {
+    if (recommendations.length === 0) {
+      setError('추천 날짜가 있을 때 확정할 수 있습니다.')
+      return
+    }
+
+    setConfirmForm((currentForm) => currentForm ?? createConfirmedResultFromRecommendation(recommendations[0]))
+    setShowConfirmDialog(true)
+    setError('')
+  }
+
+  function closeConfirmDialog() {
+    setShowConfirmDialog(false)
+    setError('')
+  }
+
+  function selectConfirmDate(recommendation) {
+    setConfirmForm((currentForm) => ({
+      ...createConfirmedResultFromRecommendation(recommendation),
+      startTime: currentForm?.startTime ?? '',
+      endTime: currentForm?.endTime ?? '',
+    }))
+    setError('')
+  }
+
+  function updateConfirmTime(event) {
+    const { name, value } = event.target
+
+    setConfirmForm((currentForm) => ({
+      ...currentForm,
+      [name]: value,
+    }))
+    setError('')
+  }
+
+  async function confirmCurrentMeeting(event) {
+    event.preventDefault()
+
+    const validationMessage = getConfirmValidationMessage(confirmForm)
+
+    if (validationMessage) {
+      setError(validationMessage)
+      return
+    }
+
     try {
-      await updateMeetingStatus({ meetingId, status: MEETING_STATUS.confirmed })
-      setMeeting((currentMeeting) => ({ ...currentMeeting, status: MEETING_STATUS.confirmed }))
+      await confirmMeeting({ confirmedResult: confirmForm, meetingId, user })
+      setMeeting((currentMeeting) => ({
+        ...currentMeeting,
+        confirmedResult: {
+          ...confirmForm,
+          confirmedBy: user.uid,
+        },
+        status: MEETING_STATUS.confirmed,
+      }))
+      setShowConfirmDialog(false)
+      setError('')
     } catch (confirmError) {
       setError(getMeetingErrorMessage(confirmError))
+    }
+  }
+
+  async function reopenCurrentMeeting() {
+    try {
+      await reopenMeeting({ meetingId })
+      setMeeting((currentMeeting) => ({
+        ...currentMeeting,
+        confirmedResult: null,
+        status: MEETING_STATUS.collecting,
+      }))
+      setError('')
+    } catch (reopenError) {
+      setError(getMeetingErrorMessage(reopenError))
     }
   }
 
@@ -123,6 +194,8 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
   const isHost = meeting.hostId === user.uid
   const currentParticipant = participants.find((participant) => participant.id === user.uid) ?? meeting.participant
   const canConfirm = isHost && meeting.status === MEETING_STATUS.collecting
+  const isConfirmed = meeting.status === MEETING_STATUS.confirmed
+  const confirmedResultLabel = getConfirmedResultLabel(meeting.confirmedResult)
   const confirmTitle = isHost ? '이 약속을 삭제할까요?' : '참여를 취소할까요?'
   const confirmDescription = isHost
     ? '삭제하면 대시보드에서 더 이상 보이지 않습니다.'
@@ -144,7 +217,7 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
         </button>
         <h1>{meeting.title}</h1>
         {canConfirm && (
-          <button type="button" className="meeting-detail__confirm" onClick={confirmMeeting}>
+          <button type="button" className="meeting-detail__confirm" onClick={openConfirmDialog}>
             확정하기
           </button>
         )}
@@ -160,6 +233,12 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
           <strong>희망 날짜(월)</strong>
           <span>{meeting.targetMonth}</span>
         </p>
+        {confirmedResultLabel && (
+          <p>
+            <strong>확정 일정</strong>
+            <span>{confirmedResultLabel}</span>
+          </p>
+        )}
         <p>
           <strong>
             참여자
@@ -227,13 +306,23 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
       </section>
 
       <footer className="meeting-detail__actions">
-        <button
-          type="button"
-          className="text-button meeting-detail__action"
-          onClick={() => (isHost ? onEdit(meeting.id) : onJoin(meeting.id))}
-        >
-          수정
-        </button>
+        {isConfirmed && isHost ? (
+          <button
+            type="button"
+            className="text-button meeting-detail__action"
+            onClick={reopenCurrentMeeting}
+          >
+            재개최하기
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="text-button meeting-detail__action"
+            onClick={() => (isHost ? onEdit(meeting.id) : onJoin(meeting.id))}
+          >
+            수정
+          </button>
+        )}
         <button
           type="button"
           className="text-button meeting-detail__action danger-button"
@@ -259,6 +348,60 @@ function MeetingDetailPage({ meetingId, onDashboard, onEdit, onJoin }) {
           </section>
         </dialog>
       )}
+
+      {showConfirmDialog && confirmForm && (
+        <dialog className="confirm-dialog" open>
+          <form aria-labelledby="confirm-meeting-title" onSubmit={confirmCurrentMeeting}>
+            <h2 id="confirm-meeting-title">일정 확정</h2>
+            <fieldset className="confirm-date-options">
+              <legend>확정 날짜</legend>
+              {recommendations.map((recommendation) => (
+                <button
+                  type="button"
+                  key={recommendation.date}
+                  aria-pressed={confirmForm.date === recommendation.date}
+                  onClick={() => selectConfirmDate(recommendation)}
+                >
+                  <span>{getDateWithWeekdayLabel(recommendation.date)}</span>
+                  <span>{recommendation.participantCount}명 가능</span>
+                </button>
+              ))}
+            </fieldset>
+            <fieldset className="time-row">
+              <legend>확정 시간</legend>
+              <section className="time-row__inputs" aria-label="확정 시간 입력">
+                <label>
+                  시작
+                  <input
+                    type="time"
+                    name="startTime"
+                    value={confirmForm.startTime}
+                    onChange={updateConfirmTime}
+                  />
+                </label>
+                <label>
+                  종료
+                  <input
+                    type="time"
+                    name="endTime"
+                    value={confirmForm.endTime}
+                    onChange={updateConfirmTime}
+                  />
+                </label>
+              </section>
+            </fieldset>
+            {error && <p className="form-status form-status--error">{error}</p>}
+            <footer className="confirm-dialog__actions">
+              <button type="button" className="text-button" onClick={closeConfirmDialog}>
+                취소
+              </button>
+              <button type="submit" className="text-button confirm-dialog__primary">
+                확정
+              </button>
+            </footer>
+          </form>
+        </dialog>
+      )}
     </main>
   )
 }
@@ -277,6 +420,26 @@ function getRecommendationEmptyMessage(participantTotal) {
   }
 
   return '아직 추천할 수 있는 후보가 없습니다.'
+}
+
+function getConfirmValidationMessage(confirmForm) {
+  if (!confirmForm?.date) {
+    return '확정할 날짜를 선택해 주세요.'
+  }
+
+  if (!confirmForm.startTime && !confirmForm.endTime) {
+    return ''
+  }
+
+  if (!confirmForm.startTime || !confirmForm.endTime) {
+    return '시간은 비워두거나 시작/종료를 모두 입력해 주세요.'
+  }
+
+  if (confirmForm.endTime <= confirmForm.startTime) {
+    return '확정 종료 시간은 시작 시간보다 늦어야 합니다.'
+  }
+
+  return ''
 }
 
 function getParticipantName(participant) {
