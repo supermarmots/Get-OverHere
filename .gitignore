@@ -13,6 +13,7 @@ firebase-debug.*.log
 node_modules/
 .pnp
 .pnp.js
+.vite
 
 # Build / Production
 /dist

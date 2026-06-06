@@ -35,7 +35,7 @@
 - [x] Invite join page at `/meetings/{meetingId}/join`
 - [x] Participant response create/update
 - [x] Participant cancellation
-- [x] Host-only soft delete
+- [x] Host-only hard delete
 - [x] Host-only confirm action
 - [x] Host reopen action from confirmed dashboard section
 - [x] Participant availability query

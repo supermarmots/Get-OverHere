@@ -14,7 +14,7 @@
   - 내가 조율 중: `hostId === uid`, `status !== confirmed`
   - 참여 중: `hostId !== uid`, `status !== confirmed`
   - 확정 완료: `status === confirmed`
-- soft delete된 약속은 service에서 제외한다.
+- 삭제된 약속은 Firestore에서 제거되므로 조회 결과에 포함되지 않는다.
 - 대시보드 상단에는 약속 현황 3개 지표를 1행 3열로 보여준다.
 - 주요 액션은 `새 약속`, `초대 참여` 2개 버튼을 1행 2열로 보여준다.
 - 초대 참여 버튼은 링크 입력 dialog를 열고, `/meetings/{meetingId}/join` 경로만 허용한다.
@@ -68,7 +68,7 @@
 ## 데이터 기준
 
 - 조회: `meetings` collection where `participantIds array-contains uid`
-- 필터 제외: `status === deleted`
+- 삭제 정책: hard delete된 약속은 조회되지 않음
 - 정렬: `createdAt` 최신 순
 
 ## 완료된 범위
